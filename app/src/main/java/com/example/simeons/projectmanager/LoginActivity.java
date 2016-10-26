@@ -1,6 +1,7 @@
 package com.example.simeons.projectmanager;
 
-        import android.app.Activity;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -36,6 +37,8 @@ public class LoginActivity extends Activity  {
 
                         ed2.getText().toString().equals("admin")) {
                     Toast.makeText(getApplicationContext(), "Redirecting...",Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LoginActivity.this, ProjectActivity.class);
+                    startActivity(intent);
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "Wrong Credentials",Toast.LENGTH_SHORT).show();
