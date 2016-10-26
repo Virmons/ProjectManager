@@ -39,6 +39,7 @@ public class LoginActivity extends Activity  {
                     Toast.makeText(getApplicationContext(), "Redirecting...",Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, ProjectActivity.class);
                     startActivity(intent);
+                    finish();
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "Wrong Credentials",Toast.LENGTH_SHORT).show();
@@ -61,5 +62,12 @@ public class LoginActivity extends Activity  {
                 finish();
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+
     }
 }
