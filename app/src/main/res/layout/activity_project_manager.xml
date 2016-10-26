@@ -10,4 +10,111 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.simeons.projectmanager.ProjectManagerActivity">
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:weightSum="1">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:text="Project Name"
+            android:ems="10"
+            android:id="@+id/projectName"
+            android:textSize="24sp"
+            android:layout_toLeftOf="@+id/buttonAdd1"
+            android:layout_toStartOf="@+id/buttonAdd1" />
+
+            <Button
+                android:text="@string/btn_add_project"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonAdd1"
+                android:onClick="addNewProjectPM"
+                android:layout_width="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="220dp">
+
+            <TextView
+                android:text="@string/table1_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/table1Header"
+                android:textSize="24sp"
+                android:textAlignment="center"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_weight="1"/>
+
+            <Button
+                android:text="+"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonAdd2"
+                android:onClick="addNewTable1"
+                android:layout_width="wrap_content"
+                android:layout_alignBaseline="@+id/table1Header"
+                android:layout_alignBottom="@+id/table1Header"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <ListView
+                android:id="@+id/table1List"
+                android:layout_height="177dp"
+                android:layout_width="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true">
+                android:layout_below="@+id/buttonAdd3"></ListView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="258dp">
+
+            <TextView
+                android:text="Personnel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/table2Header"
+                android:textSize="24sp"
+                android:textAlignment="center"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_weight="1"/>
+
+            <ListView
+                android:id="@+id/table2List"
+                android:layout_height="177dp"
+                android:layout_width="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/buttonAdd3"></ListView>
+
+            <Button
+                android:text="+"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonAdd3"
+                android:onClick="addNewTable2"
+                android:layout_width="wrap_content"
+                android:layout_alignBaseline="@+id/table2Header"
+                android:layout_alignBottom="@+id/table2Header"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
+    </LinearLayout>
+
 </RelativeLayout>

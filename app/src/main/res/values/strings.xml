@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">ProjectManager</string>
 
-
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
@@ -17,4 +13,11 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- Project Manager Strings -->
+    <string name="project_name">New Project</string>
+    <string name="table1_header">Stories</string>
+    <string name="table2_header">Personnel</string>
+    <string name="btn_add_project">Add Project</string>
+
 </resources>

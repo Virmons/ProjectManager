@@ -30,7 +30,8 @@
         android:layout_alignBaseline="@+id/button_add_project"
         android:layout_alignBottom="@+id/button_add_project"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_weight="1"/>
 
     <ListView
         android:id="@+id/list"
