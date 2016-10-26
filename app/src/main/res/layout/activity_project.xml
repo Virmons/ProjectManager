@@ -16,8 +16,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/button_add_project"
-        android:id="@+id/Projects_ProjectList"
-        android:onItemClick="project_selected"/>
+        android:id="@+id/Projects_ProjectList"/>
 
     <Button
         android:text="+"
