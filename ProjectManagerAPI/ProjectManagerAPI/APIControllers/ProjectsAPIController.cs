@@ -9,7 +9,7 @@ using System.Web.Http;
 
 namespace ProjectManagerAPI.APIControllers
 {
-    public class ProjectsController : ApiController
+    public class ProjectsAPIController : ApiController
     {
         [HttpGet]
         [Route("api/Projects/getAllProjects")]

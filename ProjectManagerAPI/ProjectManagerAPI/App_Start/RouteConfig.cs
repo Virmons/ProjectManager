@@ -19,7 +19,6 @@ namespace ProjectManagerAPI
                     new { controller = "Home", action = "Index" }  // Parameter defaults
            );
 
-
         }
     }
 }
