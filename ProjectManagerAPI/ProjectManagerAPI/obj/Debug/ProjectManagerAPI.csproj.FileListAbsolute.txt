@@ -33,3 +33,4 @@ C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManag
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Web.WebPages.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Web.WebPages.Deployment.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Web.WebPages.Razor.xml
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\obj\Debug\ProjectManagerAPI.csprojResolveAssemblyReference.cache

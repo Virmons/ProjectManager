@@ -13,23 +13,7 @@ namespace ProjectManagerAPI.DataAccessLayer
 {
     public class ProjectDataAccess
     {
-        public string getConnectionString()
-        {
-            Configuration rootWebConfig = WebConfigurationManager.OpenWebConfiguration("/ProjectManagerAPI");
-            ConnectionStringSettings connString = new ConnectionStringSettings();
-            if (rootWebConfig.ConnectionStrings.ConnectionStrings.Count > 0)
-            {
-                connString =
-                    rootWebConfig.ConnectionStrings.ConnectionStrings["DBConnStr"];
-                if (connString != null)
-                    Console.WriteLine("Northwind connection string = \"{0}\"",
-                        connString.ConnectionString);
-                else
-                    Console.WriteLine("No Northwind connection string");
-            }
 
-            return connString.ConnectionString;
-        }
         public List<Project> getAllProjects(string user)
         {
             using (new MethodLogging())

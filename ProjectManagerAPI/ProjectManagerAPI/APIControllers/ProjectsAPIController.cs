@@ -12,7 +12,7 @@ namespace ProjectManagerAPI.APIControllers
     public class ProjectsAPIController : ApiController
     {
         [HttpGet]
-        [Route("api/Projects/getAllProjects")]
+        [Route("api/Projects/getAllProjects/{user}")]
         public List<Project> getAllProjects(string user)
         {
             List<Project> projectList = new List<Project>();
