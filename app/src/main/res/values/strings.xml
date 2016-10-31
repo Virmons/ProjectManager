@@ -19,5 +19,9 @@
     <string name="table1_header">Stories</string>
     <string name="table2_header">Personnel</string>
     <string name="btn_add_project">Add Project</string>
+    <string name="btn_update_project">Update</string>
+
+    <!-- API URL -->
+    <string name="getAllProjects">http://SOMETHING/api/Projects/getAllProjects/</string>
 
 </resources>

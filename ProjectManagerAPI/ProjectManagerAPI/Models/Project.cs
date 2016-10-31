@@ -10,5 +10,6 @@ namespace ProjectManagerAPI.Models
         public int ID { get; set; }
         public string ProjectName { get; set; }
         public DateTime DateCreated { get; set; }
+        public bool Active { get; set; }
     }
 }

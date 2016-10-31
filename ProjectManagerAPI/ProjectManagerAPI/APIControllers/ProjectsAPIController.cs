@@ -1,4 +1,5 @@
-﻿using ProjectManagerAPI.DataAccessLayer;
+﻿using Newtonsoft.Json.Linq;
+using ProjectManagerAPI.DataAccessLayer;
 using ProjectManagerAPI.Models;
 using System;
 using System.Collections.Generic;
@@ -12,16 +13,17 @@ namespace ProjectManagerAPI.APIControllers
     public class ProjectsAPIController : ApiController
     {
         [HttpGet]
-        [Route("api/Projects/getAllProjects/{user}")]
-        public List<Project> getAllProjects(string user)
+        [Route("api/Projects/getAllProjects/{userInitials}")]
+        public JArray getAllProjects(string userInitials)
         {
             List<Project> projectList = new List<Project>();
             ProjectDataAccess projectDataAccess = new ProjectDataAccess();
 
-            projectList = projectDataAccess.getAllProjects(user);
+            projectList = projectDataAccess.getAllProjects(userInitials);
 
+            JArray returnProjectList = JArray.FromObject(projectList);
 
-            return projectList;
+            return returnProjectList;
         }
         
     }
