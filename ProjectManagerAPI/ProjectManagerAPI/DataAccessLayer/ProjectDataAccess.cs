@@ -52,5 +52,36 @@ namespace ProjectManagerAPI.DataAccessLayer
                 return projectList;
             }
         }
+
+        public bool AddProject(Project data, string user)
+        {
+            using(new MethodLogging())
+            {
+                bool wasAdded = false;
+
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        using (SqlCommand command = new SqlCommand("usp_addProject", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+                            command.Parameters.AddWithValue("@User", user).Direction = ParameterDirection.Input;
+                            command.Parameters.AddWithValue("@ProjectName", data.ProjectName).Direction = ParameterDirection.Input;
+                            command.Parameters.AddWithValue("@wasAdded", wasAdded).Direction = ParameterDirection.Output;
+                            connection.Open();
+                            command.ExecuteNonQuery();
+                            connection.Close();
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    throw e;
+                }
+
+                return wasAdded;
+            }
+        }
     }
 }
