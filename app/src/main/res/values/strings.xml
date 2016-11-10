@@ -22,6 +22,6 @@
     <string name="btn_update_project">Update</string>
 
     <!-- API URL -->
-    <string name="getAllProjects">http://SOMETHING/api/Projects/getAllProjects/</string>
+    <string name="getAllProjects">79.77.23.117:2099/api/Projects/getAllProjects/</string>
 
 </resources>

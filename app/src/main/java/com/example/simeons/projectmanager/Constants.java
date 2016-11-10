@@ -10,7 +10,7 @@ public interface Constants {
     public static final String DATA_API_URL = "http://wolfwebtest1:2099/api/";
 
     //Projects Get Projects by UserInitials URL
-    public static final String PROJECTS_API_GETALL = "http://wolfwebtest1:2099/api/Projects/getAllProjects/";
+    public static final String PROJECTS_API_GETALL = "79.77.23.117:2099/api/Projects/getAllProjects/";
 
     //Projects Add Project
     public static final String PROJECTS_API_ADD = "http://wolfwebtest1:2099/api/Projects/addProject/";
