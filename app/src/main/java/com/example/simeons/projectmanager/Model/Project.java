@@ -9,11 +9,15 @@ public class Project {
     private String ProjectName;
     private String DateCreated;
     private String Active;
+    private Story[] Stories;
+    private Person[] Personnel;
 
-public    Project(String ID,String ProjectName,String DateCreated,String Active){
-        this.ID=ID;
-        this.ProjectName=ProjectName;
-        this.DateCreated=DateCreated;
-        this.Active=Active;
+public Project(String ID,String ProjectName,String DateCreated,String Active){
+    this.ID=ID;
+    this.ProjectName=ProjectName;
+    this.DateCreated=DateCreated;
+    this.Active=Active;
+    this.Stories = Stories;
+    this.Personnel = Personnel;
     }
 }

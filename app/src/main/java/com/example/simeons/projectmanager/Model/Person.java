@@ -7,4 +7,10 @@ package com.example.simeons.projectmanager.Model;
 public class Person {
 
     private String ID;
+    private String Name;
+    private String Initials;
+    private String DateCreated;
+    private String Administrator;
+    private String Active;
+
 }
