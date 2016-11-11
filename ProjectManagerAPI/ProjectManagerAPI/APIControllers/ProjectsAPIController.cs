@@ -12,7 +12,7 @@ using Wolf.Assembly.Logging;
 namespace ProjectManagerAPI.APIControllers
 {
     public class ProjectsAPIController : ApiController
-    {
+    {        
         [HttpGet]
         [Route("api/Projects/getAllProjects/{userInitials}")]
         public JArray getAllProjects(string userInitials)
@@ -29,8 +29,8 @@ namespace ProjectManagerAPI.APIControllers
 
                     projectList = projectDataAccess.getAllProjects(userInitials);
 
-                    returnProjectList = JArray.FromObject(projectList);
-
+                    returnProjectList = JArray.FromObject(projectList);                                       
+                    
                 }
                 catch (Exception e)
                 {

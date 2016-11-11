@@ -13,4 +13,13 @@ public class Person {
     private String Administrator;
     private String Active;
 
+    public Person(String iD, String name, String initials, String dateCreated, String administrator, String active)
+    {
+        this.ID = iD;
+        this.Name = name;
+        this.Initials = initials;
+        this.DateCreated = dateCreated;
+        this.Administrator = administrator;
+        this.Active = active;
+    }
 }

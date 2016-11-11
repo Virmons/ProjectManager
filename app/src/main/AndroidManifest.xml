@@ -37,7 +37,8 @@
         <activity android:name=".ProjectInProgressManagerActivity" />
         <activity android:name=".AddTaskActivity" />
         <activity android:name=".SprintInProgressTaskActivity" />
-        <activity android:name=".SprintOverTaskActivity"></activity>
+        <activity android:name=".SprintOverTaskActivity" />
+        <activity android:name=".CreateUser"></activity>
     </application>
 
 </manifest>

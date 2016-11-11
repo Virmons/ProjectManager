@@ -20,4 +20,7 @@ public interface Constants {
 
     //Edit Project Request
     public static final int EDIT_PROJECT_REQUEST = 2;
+
+    //Login Attempt
+    public static final String LOGIN_API_LOGIN = "http://79.77.23.117:2099/api/Login/authoriseCredentials/";
 }

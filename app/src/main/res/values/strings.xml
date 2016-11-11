@@ -1,9 +1,14 @@
 <resources>
     <string name="app_name">ProjectManager</string>
 
+    <!-- General Strings -->
+    <string name="button_cancel">Cancel</string>
+
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="login_title">Login</string>
+    <string name="prompt_name">Enter Name</string>
+    <string name="prompt_password">Password</string>
+    <string name="login_button_login">Log in</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
@@ -14,6 +19,10 @@
         completions."
     </string>
 
+    <!-- Strings related to create user -->
+    <string name="create_user_textview_title">Create User</string>
+    <string name="create_user_button_create">Create</string>
+
     <!-- Project Manager Strings -->
     <string name="project_name">New Project</string>
     <string name="table1_header">Stories</string>
@@ -23,5 +32,6 @@
 
     <!-- API URL -->
     <string name="getAllProjects">79.77.23.117:2099/api/Projects/getAllProjects/</string>
+    <string name="title_activity_create_user">CreateUser</string>
 
 </resources>

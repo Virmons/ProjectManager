@@ -24,7 +24,7 @@ namespace ProjectManagerAPI.DataAccessLayer
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
                     {
-                        using (SqlCommand command = new SqlCommand("usp_getAllProjects", connection))
+                        using (SqlCommand command = new SqlCommand("usp_ProjectGetAllProjects", connection))
                         {
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.AddWithValue("@UserInitials", userInitials).Direction = ParameterDirection.Input;
@@ -63,7 +63,7 @@ namespace ProjectManagerAPI.DataAccessLayer
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
                     {
-                        using (SqlCommand command = new SqlCommand("usp_addProject", connection))
+                        using (SqlCommand command = new SqlCommand("usp_ProjectAddProject", connection))
                         {
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.AddWithValue("@User", user).Direction = ParameterDirection.Input;
@@ -71,6 +71,7 @@ namespace ProjectManagerAPI.DataAccessLayer
                             command.Parameters.AddWithValue("@wasAdded", wasAdded).Direction = ParameterDirection.Output;
                             connection.Open();
                             command.ExecuteNonQuery();
+                            wasAdded = bool.Parse(command.Parameters["@WasAdded"].Value.ToString());
                             connection.Close();
                         }
                     }

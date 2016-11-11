@@ -12,12 +12,12 @@ public class Project {
     private Story[] Stories;
     private Person[] Personnel;
 
-public Project(String ID,String ProjectName,String DateCreated,String Active){
-    this.ID=ID;
-    this.ProjectName=ProjectName;
-    this.DateCreated=DateCreated;
-    this.Active=Active;
-    this.Stories = Stories;
-    this.Personnel = Personnel;
+public Project(String iD,String projectName,String dateCreated,String active, Story[] stories, Person[] personnel){
+    this.ID=iD;
+    this.ProjectName=projectName;
+    this.DateCreated=dateCreated;
+    this.Active=active;
+    this.Stories = stories;
+    this.Personnel = personnel;
     }
 }
