@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjectManagerAPI.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -13,38 +14,7 @@ namespace ProjectManagerAPI.DataAccessLayer
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public string getPasswordByUser(string user)
-        {
-            using(new MethodLogging())
-            {
-                string hashPass = "";
-
-                try
-                {
-                    using (SqlConnection connection = new SqlConnection(connectionString))
-                    {
-                        using(SqlCommand command = new SqlCommand("usp_CredPasswordByUser",connection))
-                        {
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@User", user).Direction = ParameterDirection.Input;
-                            command.Parameters.AddWithValue("@ReturnPass", hashPass).Direction = ParameterDirection.Output;
-                            connection.Open();
-                            command.ExecuteNonQuery();
-                            hashPass = command.Parameters["@ReturnPass"].Value.ToString();
-                            connection.Close();
-                        }
-                    }
-                }
-                catch(Exception e)
-                {
-                    throw e;
-                }
-
-                return hashPass;
-            }
-        }
-
-        public int addNewPassword(string user, string password)
+        public int AddNewPassword(string user, string password)
         {
             using(new MethodLogging())
             {
@@ -74,11 +44,13 @@ namespace ProjectManagerAPI.DataAccessLayer
             }
         }
 
-        public bool doesUserExist(string user)
+        public LoginExistPassword DoesUserExist(string user)
         {
             using(new MethodLogging())
             {
-                bool exists = false;
+
+                LoginExistPassword data = new LoginExistPassword() { Exists = 0, Password = ""};
+                
                 try 
                 {
                 
@@ -88,10 +60,15 @@ namespace ProjectManagerAPI.DataAccessLayer
                         {
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.AddWithValue("@User", user).Direction = ParameterDirection.Input;
-                            command.Parameters.AddWithValue("@Exists", exists).Direction = ParameterDirection.Output;
+                            command.Parameters.AddWithValue("@Exists", data.Exists).Direction = ParameterDirection.Output;
+                            command.Parameters.Add("@ReturnPass", SqlDbType.VarChar, -1).Value = data.Password;
+                            command.Parameters["@ReturnPass"].Direction = ParameterDirection.Output;
+                            command.Parameters.AddWithValue("@Role", data.Role).Direction = ParameterDirection.Output;
                             connection.Open();
                             command.ExecuteNonQuery();
-                            exists = bool.Parse(command.Parameters["@Exists"].Value.ToString());
+                            data.Exists = int.Parse(command.Parameters["@Exists"].Value.ToString());
+                            data.Password = command.Parameters["@ReturnPass"].Value.ToString();
+                            data.Role = bool.Parse(command.Parameters["@Role"].Value.ToString());
                             connection.Close();
 
                         }
@@ -102,7 +79,7 @@ namespace ProjectManagerAPI.DataAccessLayer
                 {
                     throw e;
                 }
-                return exists;
+                return data;
             }
         }
     }

@@ -40,3 +40,6 @@ C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManag
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\Microsoft.IdentityModel.Logging.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\Microsoft.IdentityModel.Tokens.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.IdentityModel.Tokens.Jwt.xml
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\BCrypt.Net.dll
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\BCrypt.Net.pdb
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\BCrypt.Net.xml
