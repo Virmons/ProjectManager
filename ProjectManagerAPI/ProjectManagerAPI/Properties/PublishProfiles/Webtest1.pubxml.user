@@ -16,10 +16,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>10/26/2016 15:42:19</publishTime>
     </File>
     <File Include="bin/BCrypt.Net.dll">
-      <publishTime>11/11/2016 13:30:56</publishTime>
+      <publishTime>11/14/2016 12:05:32</publishTime>
     </File>
     <File Include="bin/BCrypt.Net.pdb">
-      <publishTime>11/11/2016 13:30:56</publishTime>
+      <publishTime>11/14/2016 12:05:32</publishTime>
     </File>
     <File Include="bin/Gibraltar.Agent.dll">
       <publishTime>10/26/2016 14:52:09</publishTime>
@@ -37,13 +37,13 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>10/31/2016 15:18:34</publishTime>
     </File>
     <File Include="bin/ProjectManagerAPI.dll">
-      <publishTime>11/14/2016 11:31:32</publishTime>
+      <publishTime>11/15/2016 16:22:49</publishTime>
     </File>
     <File Include="bin/ProjectManagerAPI.pdb">
-      <publishTime>11/14/2016 11:31:32</publishTime>
+      <publishTime>11/15/2016 16:22:49</publishTime>
     </File>
     <File Include="bin/System.IdentityModel.Tokens.Jwt.dll">
-      <publishTime>11/11/2016 13:46:33</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="bin/System.Net.Http.Formatting.dll">
       <publishTime>10/26/2016 14:29:41</publishTime>
@@ -109,10 +109,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>10/26/2016 14:29:37</publishTime>
     </File>
     <File Include="LICENSE.txt">
-      <publishTime>11/11/2016 13:30:56</publishTime>
+      <publishTime>11/14/2016 12:05:32</publishTime>
     </File>
     <File Include="packages.config">
-      <publishTime>11/11/2016 16:40:27</publishTime>
+      <publishTime>11/15/2016 09:43:08</publishTime>
     </File>
     <File Include="Scripts/bootstrap.js">
       <publishTime>10/26/2016 15:42:14</publishTime>
@@ -160,7 +160,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>10/26/2016 15:42:10</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>11/11/2016 16:40:44</publishTime>
+      <publishTime>11/15/2016 12:20:48</publishTime>
     </File>
   </ItemGroup>
 </Project>

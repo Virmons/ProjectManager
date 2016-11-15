@@ -11,7 +11,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -79,10 +83,10 @@ public class LoginActivity extends Activity  {
         @Override
         protected Integer doInBackground(String... params) {
 
-            url = LOGIN_API_LOGIN + "user={" + params[0] + "}&pass={" + params[1] + "}";
 
-            postJSON(url, 30000);
+            url = LOGIN_API_LOGIN;
 
+            postJSON(url, params, 30000);
             return null;
         }
 
@@ -102,26 +106,42 @@ public class LoginActivity extends Activity  {
 
     }
 
-    public String postJSON(String url, int timeout) {
-        HttpURLConnection c = null;
+    public String postJSON(String url, String[] params, int timeout) {
+        HttpURLConnection connection = null;
         try {
+            JSONObject postParams = new JSONObject();
+            try{
+                postParams.put("User", params[0]);
+                postParams.put("Password", params[1]);
+            }
+            catch( JSONException e){
+                e.printStackTrace();
+            }
+            String urlParams = postParams.toString();
+            byte[] bytesToSend = urlParams.getBytes();
             URL u = new URL(url);
-            c = (HttpURLConnection) u.openConnection();
-            c.setRequestMethod("POST");
-            c.setRequestProperty("Content-length", "0");
-            c.setUseCaches(false);
-            c.setAllowUserInteraction(false);
-            c.setConnectTimeout(timeout);
-            c.setReadTimeout(timeout);
-            c.connect();
-            int status = c.getResponseCode();
+            connection = (HttpURLConnection) u.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setUseCaches(false);
+            connection.setAllowUserInteraction(false);
+            connection.setConnectTimeout(timeout);
+            connection.setReadTimeout(timeout);
+            connection.connect();
+            //connection.getOutputStream().write(bytesToSend);
+            DataOutputStream printout = new DataOutputStream(connection.getOutputStream ());
+            printout.write(bytesToSend);
+            printout.flush ();
+            printout.close ();
+            int status = connection.getResponseCode();
 
             Log.i("Status Code", Integer.toString(status));
 
             switch (status) {
                 case 200:
                 case 201:
-                    BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                    BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     StringBuilder sb = new StringBuilder();
                     String line;
                     while ((line = br.readLine()) != null) {
@@ -174,9 +194,9 @@ public class LoginActivity extends Activity  {
         } catch (IOException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         } finally {
-            if (c != null) {
+            if (connection != null) {
                 try {
-                    c.disconnect();
+                    connection.disconnect();
                 } catch (Exception ex) {
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
                 }
@@ -184,7 +204,6 @@ public class LoginActivity extends Activity  {
         }
         return null;
     }
-
 
     @Override
     protected void onDestroy() {

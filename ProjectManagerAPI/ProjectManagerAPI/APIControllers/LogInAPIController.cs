@@ -1,136 +1,188 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using ProjectManagerAPI.DataAccessLayer;
+using ProjectManagerAPI.Models;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Protocols.WSTrust;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
-using Newtonsoft.Json.Linq;
-using ProjectManagerAPI.Models;
-using ProjectManagerAPI.DataAccessLayer;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using ProjectManagerAPI.Utility;
+using System.Text;
+using System.Web.Http;
+using System.IO;
+using Wolf.Assembly.Logging;
 
 namespace ProjectManagerAPI.APIControllers
 {
     public class LogInAPIController : ApiController
     {
-        [HttpGet]
-        [Route("Login/authoriseCredentials/{user}/{password}")]
-        public JObject returnJWT(string user, string password)
+        [HttpPost]
+        [Route("api/Login/authoriseCredentials")]
+        public string returnJWT([FromBody]byte[] inputString)
         {
-            JObject returnJSON = new JObject();
-            LoginDataAccess loginDataAccess = new LoginDataAccess();
-            string noValidation = "";
-            LoginExistPassword doesUserExist = new LoginExistPassword() { Exists = 0, Password = "" };
-
-            doesUserExist = loginDataAccess.DoesUserExist(user);
-
-            if (doesUserExist.Exists == 2 && doesUserExist.Password.Length > 0)
+            using (new MethodLogging())
             {
-                string passwordToCheckAgainst = doesUserExist.Password;
-                
-                bool validPassword = false;
-                validPassword = BCrypt.Net.BCrypt.Verify(password, passwordToCheckAgainst);
-
-                if (validPassword)
+                try
                 {
-                    KeyDataAccess keyDataAccess = new KeyDataAccess();
-                    RSAParameters keyParams = RSAKey.GetKeyParameters(user);
-
-                    RsaSecurityKey key = new RsaSecurityKey(keyParams);
-                    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-                    var claimsIdentity = new ClaimsIdentity();
-
-                    if (doesUserExist.Role == true)
+                    Console.WriteLine("Sime");
+                    Console.WriteLine(inputString);
+                    Console.WriteLine("byte array length: " + inputString.Length.ToString());
+                    JObject userPass = new JObject();
+                    try
                     {
-                        //Admin
-                        claimsIdentity = new ClaimsIdentity(new List<Claim> {
+                        userPass = JObject.FromObject(System.Text.Encoding.UTF8.GetString(inputString));
+                    }
+                    catch(Exception e)
+                    {
+                        throw e;
+                    }
+                    Console.WriteLine("userPass: " + userPass.ToString());
+                    UserPassPair currentUser = userPass.ToObject<UserPassPair>();
+                    Console.WriteLine("currentUser: " + currentUser.User.ToString(), currentUser.Password.ToString());
+                    JObject returnJSON = new JObject();
+                    LoginDataAccess loginDataAccess = new LoginDataAccess();
+                    string noValidation = "";
+                    LoginExistPassword doesUserExist = new LoginExistPassword() { Exists = 0, Password = "" };
+
+                    doesUserExist = loginDataAccess.DoesUserExist(currentUser.User);
+
+                    Console.WriteLine("doesUserExist: " + doesUserExist.Exists.ToString() + " " + doesUserExist.Password.ToString() + " " + doesUserExist.Role.ToString());
+
+                    if (doesUserExist.Exists == 2 && doesUserExist.Password.Length > 0)
+                    {
+                        string passwordToCheckAgainst = doesUserExist.Password;
+
+                        bool validPassword = false;
+                        validPassword = BCrypt.Net.BCrypt.Verify(currentUser.Password, passwordToCheckAgainst);
+
+                        Console.WriteLine("validPassword?: " + validPassword.ToString());
+
+                        if (validPassword)
+                        {
+                            KeyDataAccess keyDataAccess = new KeyDataAccess();
+                            var plainTextSecurityKey = keyDataAccess.GetKey();
+                            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(plainTextSecurityKey));
+                            var signingCredentials = new SigningCredentials(signingKey,
+                                SecurityAlgorithms.HmacSha256Signature);
+
+                            var claimsIdentity = new ClaimsIdentity();
+
+                            if (doesUserExist.Role == true)
+                            {
+                                //Admin
+                                claimsIdentity = new ClaimsIdentity(new List<Claim> {
                             
                                 new Claim(ClaimTypes.Role, "Administrator")
 
                             });
-                    }
-                    else if (doesUserExist.Role == false)
-                    {
-                        //User
-                        claimsIdentity = new ClaimsIdentity(new List<Claim> { 
+                            }
+                            else if (doesUserExist.Role == false)
+                            {
+                                //User
+                                claimsIdentity = new ClaimsIdentity(new List<Claim> { 
                             
                                 new Claim(ClaimTypes.Role, "User")
 
                             });
 
+                            }
+                            else
+                            {
+                                throw new Exception("Not a valid user");
+                            }
+
+                            var securityTokenDescriptor = new SecurityTokenDescriptor()
+                            {
+                                Issuer = "Self",
+                                Audience = "http://wolfwebtest1:2099",
+                                Expires = DateTime.Now.AddMinutes(5),
+                                Subject = claimsIdentity,
+                                SigningCredentials = signingCredentials,
+                            };
+
+                            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+                            var plainToken = tokenHandler.CreateToken(securityTokenDescriptor);
+                            var signedAndEncodedToken = tokenHandler.WriteToken(plainToken);
+
+                            #region Another way of Generating JWT
+                            //var tokenHandler = new JwtSecurityTokenHandler();
+                            //var input = "anyoldrandomtext";
+                            //var securityKey = new byte[input.Length * sizeof(char)];
+                            //Buffer.BlockCopy(input.ToCharArray(), 0, securityKey, 0, securityKey.Length);
+                            //var now = DateTime.UtcNow;
+                            //var tokenDescriptor = new SecurityTokenDescriptor
+                            //{
+                            //    Subject = new ClaimsIdentity(new[]
+                            //{
+                            //    new Claim( ClaimTypes.UserData,
+                            //    "IsValid", ClaimValueTypes.String, "(local)" )
+                            //}),
+                            //    Issuer = "self",
+                            //    Audience = "https://www.mywebsite.com",
+                            //    Expires = now.AddMinutes(60),
+                            //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(securityKey), SecurityAlgorithms.HmacSha256),
+                            //};
+
+                            //var token = tokenHandler.CreateToken(tokenDescriptor);
+                            //var tokenString = tokenHandler.WriteToken(token);
+                            #endregion
+
+                            return signedAndEncodedToken;
+                        }
+
+                    }
+                    else if (doesUserExist.Exists == 1)
+                    {
+                        noValidation = "User exists but has no password, please create a password";
                     }
                     else
                     {
-                        throw new Exception("Not a valid user");
+                        noValidation = "User does not exist";
                     }
 
-                    var securityTokenDescriptor = new SecurityTokenDescriptor()
-                    {
-                        Issuer = "WolfAPI",
-                        IssuedAt = DateTime.Now,
-                        Expires = DateTime.Now.AddDays(1),
-                        Subject = claimsIdentity,
-                        SigningCredentials = signingCredentials,
-                    };
-
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var plainToken = tokenHandler.CreateToken(securityTokenDescriptor);
-                    var signedAndEncodedToken = tokenHandler.WriteToken(plainToken);
-
-                    returnJSON = JObject.FromObject(signedAndEncodedToken);
+                    return noValidation;
                 }
-
+                catch(Exception e)
+                {
+                    throw e;
+                }
             }
-            else if (doesUserExist.Exists == 1)
-            {
-                noValidation = "User exists but has no password, please create a password";
-                returnJSON = JObject.FromObject(noValidation);
-            }
-            else
-            {
-                noValidation = "User does not exist";
-                returnJSON = JObject.FromObject(noValidation);
-            }
-
-            return returnJSON;
         }
 
-        [HttpGet]
-        [Route("Login/createNew/{user}/{password}")]
-        public JObject CreateNewPassword(string user, string password)
+        [HttpPost]
+        [Route("api/Login/createNew")]
+        public JObject CreateNewPassword([FromBody] JToken userPass)
         {
-
+            UserPassPair newUser = userPass.ToObject<UserPassPair>();
             JObject returnJSON = new JObject();
             LoginDataAccess loginDataAccess = new LoginDataAccess();
             string returnString = "";
             int wasAdded = 0;
             LoginExistPassword doesUserExist = new LoginExistPassword() { Exists = 0, Password = "" };
-            doesUserExist = loginDataAccess.DoesUserExist(user);
+            doesUserExist = loginDataAccess.DoesUserExist(newUser.User);
 
-            if(doesUserExist.Exists == 1)
+            if (doesUserExist.Exists == 1)
             {
-                string hashPass = BCrypt.Net.BCrypt.HashPassword(password);
-                wasAdded = loginDataAccess.AddNewPassword(user, hashPass);
+                string hashPass = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
+                wasAdded = loginDataAccess.AddNewPassword(newUser.User, hashPass);
 
-                if(wasAdded == 3)
+                if (wasAdded == 3)
                 {
                     returnString = "Password Added Successfully, please log in with your details";
                 }
-                else if(wasAdded == 2)
+                else if (wasAdded == 2)
                 {
                     returnString = "User exists but is innactive";
                 }
-                else if(wasAdded == 1)
+                else if (wasAdded == 1)
                 {
                     returnString = "User already has a password";
                 }
-                else if(wasAdded == 0)
+                else if (wasAdded == 0)
                 {
                     returnString = "Error";
                 }
@@ -138,12 +190,85 @@ namespace ProjectManagerAPI.APIControllers
             else
             {
                 returnString = "User does not exist";
-                
+
             }
-            
+
             returnJSON = JObject.FromObject(returnString);
             return returnJSON;
         }
 
+        [HttpPost]
+        [Route("api/Login/authoriseToken")]
+        public int authoriseToken([FromBody] JToken tokenData)
+        {
+            using (new MethodLogging())
+            {
+                int isAuthorised = 0;
+                try
+                {
+                    //token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQWRtaW5pc3RyYXRvciIsIm5iZiI6MTQ3OTIwODU4OCwiZXhwIjoxNDc5MjA4ODg4LCJpYXQiOjE0NzkyMDg1ODgsImlzcyI6IlNlbGYiLCJhdWQiOiJodHRwOi8vd29sZndlYnRlc3QxOjIwOTkifQ.KzoADF4sTH-jMitiEksMi7qhtIFMcHLKXH1IJCFvmxQ";
+                    string token = tokenData.ToString();
+
+                    JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+                    KeyDataAccess keyDataAccess = new KeyDataAccess();
+
+                    var plainTextSecurityKey = keyDataAccess.GetKey();
+                    var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(plainTextSecurityKey));
+
+                    var tokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidAudiences = new string[]
+                    {
+                        "http://wolfwebtest1:2099",
+                        "http://79.77.23.117:2099"
+                    },
+                        ValidIssuers = new string[]
+                    {
+                        "Self"
+                    },
+                        IssuerSigningKey = signingKey
+                    };
+
+                    SecurityToken validatedToken;
+                    try
+                    {
+                        tokenHandler.ValidateToken(token,
+                            tokenValidationParameters, out validatedToken);
+                        isAuthorised = 1;
+                        JObject jObjectToken = JObject.FromObject(validatedToken);
+                        foreach (JObject claim in jObjectToken["Claims"])
+                        {
+                            if ((string)claim["Value"] == "Administrator")
+                            {
+                                isAuthorised = 2;
+                            }
+                        }
+
+                    }
+                    catch (SecurityTokenExpiredException)
+                    {
+                        Console.WriteLine("Expired");
+                    }
+                    catch (SecurityTokenInvalidAudienceException)
+                    {
+                        Console.WriteLine("Invalid Audience");
+                    }
+                    catch (SecurityTokenInvalidIssuerException)
+                    {
+                        Console.WriteLine("Invalid Issuer");
+                    }
+                    catch (SecurityTokenInvalidSigningKeyException)
+                    {
+                        Console.WriteLine("Invalid Key");
+                    }
+
+                }
+                catch(Exception e)
+                {
+                    throw e;
+                }
+                return isAuthorised;
+            }
+        }
     }
 }

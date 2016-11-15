@@ -14,7 +14,7 @@ namespace ProjectManagerAPI.DataAccessLayer
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public string GetKey(string user)
+        public string GetKey()
         {
             using(new MethodLogging())
             {
@@ -26,7 +26,6 @@ namespace ProjectManagerAPI.DataAccessLayer
                         using(SqlCommand command = new SqlCommand("usp_KeyGetKey",connection))
                         {
                             command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@User", user).Direction = ParameterDirection.Input;
                             command.Parameters.Add("@Key", SqlDbType.VarChar, -1).Value = returnKey;
                             command.Parameters["@Key"].Direction = ParameterDirection.Output;
                             connection.Open();
