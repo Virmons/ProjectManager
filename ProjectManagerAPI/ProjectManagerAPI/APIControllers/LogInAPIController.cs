@@ -20,35 +20,30 @@ namespace ProjectManagerAPI.APIControllers
 {
     public class LogInAPIController : ApiController
     {
+        string errorString = "Error";
+        string authenticatedString = "Authenticated";
+        string notAuthenticatedString = "NonAuthenticated";
+
         [HttpPost]
         [Route("api/Login/authoriseCredentials")]
-        public string returnJWT([FromBody]byte[] inputString)
+        public JObject returnJWT([FromBody]JObject inputDetails)
         {
             using (new MethodLogging())
             {
                 try
                 {
-                    Console.WriteLine("Sime");
-                    Console.WriteLine(inputString);
-                    Console.WriteLine("byte array length: " + inputString.Length.ToString());
-                    JObject userPass = new JObject();
-                    try
-                    {
-                        userPass = JObject.FromObject(System.Text.Encoding.UTF8.GetString(inputString));
-                    }
-                    catch(Exception e)
-                    {
-                        throw e;
-                    }
-                    Console.WriteLine("userPass: " + userPass.ToString());
+                    JObject userPass = inputDetails;
+                    Console.WriteLine(inputDetails);
                     UserPassPair currentUser = userPass.ToObject<UserPassPair>();
-                    Console.WriteLine("currentUser: " + currentUser.User.ToString(), currentUser.Password.ToString());
-                    JObject returnJSON = new JObject();
+                    Console.WriteLine(currentUser);
                     LoginDataAccess loginDataAccess = new LoginDataAccess();
                     string noValidation = "";
+                    Console.WriteLine(noValidation);
                     LoginExistPassword doesUserExist = new LoginExistPassword() { Exists = 0, Password = "" };
+                    Console.WriteLine(doesUserExist);
 
                     doesUserExist = loginDataAccess.DoesUserExist(currentUser.User);
+                    Console.WriteLine(doesUserExist);
 
                     Console.WriteLine("doesUserExist: " + doesUserExist.Exists.ToString() + " " + doesUserExist.Password.ToString() + " " + doesUserExist.Role.ToString());
 
@@ -131,9 +126,15 @@ namespace ProjectManagerAPI.APIControllers
                             //var tokenString = tokenHandler.WriteToken(token);
                             #endregion
 
-                            return signedAndEncodedToken;
+                            ReturnString authenticatedReturnString = new ReturnString() { Message = signedAndEncodedToken, Type = authenticatedString };
+
+                            return JObject.FromObject(authenticatedReturnString);
                         }
 
+                    }
+                    else if(doesUserExist.Exists == 2)
+                    {
+                        noValidation = "Incorrect Username of Password";
                     }
                     else if (doesUserExist.Exists == 1)
                     {
@@ -144,7 +145,9 @@ namespace ProjectManagerAPI.APIControllers
                         noValidation = "User does not exist";
                     }
 
-                    return noValidation;
+                    ReturnString noValidationReturnString = new ReturnString() { Message = noValidation, Type = notAuthenticatedString };
+
+                    return JObject.FromObject(noValidationReturnString);
                 }
                 catch(Exception e)
                 {
@@ -199,10 +202,11 @@ namespace ProjectManagerAPI.APIControllers
 
         [HttpPost]
         [Route("api/Login/authoriseToken")]
-        public int authoriseToken([FromBody] JToken tokenData)
+        public JObject authoriseToken([FromBody]string tokenData)
         {
             using (new MethodLogging())
             {
+                ReturnString tokenReturnString = new ReturnString();
                 int isAuthorised = 0;
                 try
                 {
@@ -241,25 +245,31 @@ namespace ProjectManagerAPI.APIControllers
                             if ((string)claim["Value"] == "Administrator")
                             {
                                 isAuthorised = 2;
+                                tokenReturnString = new ReturnString() {Message = isAuthorised.ToString(), Type = authenticatedString };
+                                return JObject.FromObject(tokenReturnString);
                             }
                         }
 
                     }
                     catch (SecurityTokenExpiredException)
                     {
-                        Console.WriteLine("Expired");
+                        tokenReturnString = new ReturnString() { Message = "Expired", Type = notAuthenticatedString };
+                        return JObject.FromObject(tokenReturnString);
                     }
                     catch (SecurityTokenInvalidAudienceException)
                     {
-                        Console.WriteLine("Invalid Audience");
+                        tokenReturnString = new ReturnString() { Message = "Invalid Audience", Type = notAuthenticatedString };
+                        return JObject.FromObject(tokenReturnString);
                     }
                     catch (SecurityTokenInvalidIssuerException)
                     {
-                        Console.WriteLine("Invalid Issuer");
+                       tokenReturnString = new ReturnString() { Message = "Invalid Issuer", Type = notAuthenticatedString };
+                        return JObject.FromObject(tokenReturnString);
                     }
                     catch (SecurityTokenInvalidSigningKeyException)
                     {
-                        Console.WriteLine("Invalid Key");
+                        tokenReturnString = new ReturnString() { Message = "Invalid Key", Type = notAuthenticatedString };
+                        return JObject.FromObject(tokenReturnString);
                     }
 
                 }
@@ -267,7 +277,7 @@ namespace ProjectManagerAPI.APIControllers
                 {
                     throw e;
                 }
-                return isAuthorised;
+                return JObject.FromObject(new ReturnString() {Message = "Hit the end", Type = notAuthenticatedString });
             }
         }
     }

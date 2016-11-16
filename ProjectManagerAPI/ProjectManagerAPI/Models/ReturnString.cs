@@ -5,9 +5,9 @@ using System.Web;
 
 namespace ProjectManagerAPI.Models
 {
-    public class UserPassPair
+    public class ReturnString
     {
-        public string Password { get; set; }
-        public string User { get; set; }
+        public string Message { get; set; }
+        public string Type {get; set;}
     }
 }

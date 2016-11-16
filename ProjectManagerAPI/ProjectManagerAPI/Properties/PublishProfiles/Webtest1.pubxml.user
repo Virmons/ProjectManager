@@ -37,10 +37,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>10/31/2016 15:18:34</publishTime>
     </File>
     <File Include="bin/ProjectManagerAPI.dll">
-      <publishTime>11/15/2016 16:22:49</publishTime>
+      <publishTime>11/16/2016 16:40:04</publishTime>
     </File>
     <File Include="bin/ProjectManagerAPI.pdb">
-      <publishTime>11/15/2016 16:22:49</publishTime>
+      <publishTime>11/16/2016 16:40:04</publishTime>
     </File>
     <File Include="bin/System.IdentityModel.Tokens.Jwt.dll">
       <publishTime>01/01/0001 00:00:00</publishTime>
