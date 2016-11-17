@@ -9,6 +9,7 @@ namespace ProjectManagerAPI.Models
     {
         public int Exists { get; set; }
         public string Password { get; set; }
+        public int UserID { get; set; }
         public bool Role { get; set; }
     }
 }

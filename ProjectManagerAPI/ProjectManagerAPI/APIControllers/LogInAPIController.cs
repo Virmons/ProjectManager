@@ -33,19 +33,15 @@ namespace ProjectManagerAPI.APIControllers
                 try
                 {
                     JObject userPass = inputDetails;
-                    Console.WriteLine(inputDetails);
+
                     UserPassPair currentUser = userPass.ToObject<UserPassPair>();
-                    Console.WriteLine(currentUser);
+
                     LoginDataAccess loginDataAccess = new LoginDataAccess();
                     string noValidation = "";
-                    Console.WriteLine(noValidation);
-                    LoginExistPassword doesUserExist = new LoginExistPassword() { Exists = 0, Password = "" };
-                    Console.WriteLine(doesUserExist);
+
+                    LoginExistPassword doesUserExist = new LoginExistPassword() { Exists = 0, Password = "", Role = false, UserID = 0 };
 
                     doesUserExist = loginDataAccess.DoesUserExist(currentUser.User);
-                    Console.WriteLine(doesUserExist);
-
-                    Console.WriteLine("doesUserExist: " + doesUserExist.Exists.ToString() + " " + doesUserExist.Password.ToString() + " " + doesUserExist.Role.ToString());
 
                     if (doesUserExist.Exists == 2 && doesUserExist.Password.Length > 0)
                     {
@@ -71,7 +67,8 @@ namespace ProjectManagerAPI.APIControllers
                                 //Admin
                                 claimsIdentity = new ClaimsIdentity(new List<Claim> {
                             
-                                new Claim(ClaimTypes.Role, "Administrator")
+                                new Claim(ClaimTypes.Role, "Administrator"),
+                                new Claim(ClaimTypes.Name, doesUserExist.UserID.ToString())
 
                             });
                             }
@@ -80,7 +77,8 @@ namespace ProjectManagerAPI.APIControllers
                                 //User
                                 claimsIdentity = new ClaimsIdentity(new List<Claim> { 
                             
-                                new Claim(ClaimTypes.Role, "User")
+                                new Claim(ClaimTypes.Role, "User"),
+                                new Claim(ClaimTypes.Name, doesUserExist.UserID.ToString())
 
                             });
 
@@ -126,13 +124,13 @@ namespace ProjectManagerAPI.APIControllers
                             //var tokenString = tokenHandler.WriteToken(token);
                             #endregion
 
-                            ReturnString authenticatedReturnString = new ReturnString() { Message = signedAndEncodedToken, Type = authenticatedString };
+                            LoginMessage authenticatedReturnString = new LoginMessage() { Message = signedAndEncodedToken, Type = authenticatedString, UserID = doesUserExist.UserID.ToString() };
 
                             return JObject.FromObject(authenticatedReturnString);
                         }
 
                     }
-                    else if(doesUserExist.Exists == 2)
+                    else if (doesUserExist.Exists == 2)
                     {
                         noValidation = "Incorrect Username of Password";
                     }
@@ -145,11 +143,11 @@ namespace ProjectManagerAPI.APIControllers
                         noValidation = "User does not exist";
                     }
 
-                    ReturnString noValidationReturnString = new ReturnString() { Message = noValidation, Type = notAuthenticatedString };
+                    LoginMessage noValidationReturnString = new LoginMessage() { Message = noValidation, Type = notAuthenticatedString };
 
                     return JObject.FromObject(noValidationReturnString);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     throw e;
                 }
@@ -206,11 +204,10 @@ namespace ProjectManagerAPI.APIControllers
         {
             using (new MethodLogging())
             {
-                ReturnString tokenReturnString = new ReturnString();
+                LoginMessage tokenReturnString = new LoginMessage();
                 int isAuthorised = 0;
                 try
-                {
-                    //token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQWRtaW5pc3RyYXRvciIsIm5iZiI6MTQ3OTIwODU4OCwiZXhwIjoxNDc5MjA4ODg4LCJpYXQiOjE0NzkyMDg1ODgsImlzcyI6IlNlbGYiLCJhdWQiOiJodHRwOi8vd29sZndlYnRlc3QxOjIwOTkifQ.KzoADF4sTH-jMitiEksMi7qhtIFMcHLKXH1IJCFvmxQ";
+                {                    
                     string token = tokenData.ToString();
 
                     JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
@@ -236,39 +233,71 @@ namespace ProjectManagerAPI.APIControllers
                     SecurityToken validatedToken;
                     try
                     {
+                        string role = "";
+                        string id = "";
                         tokenHandler.ValidateToken(token,
-                            tokenValidationParameters, out validatedToken);
+                        tokenValidationParameters, out validatedToken);
                         isAuthorised = 1;
-                        JObject jObjectToken = JObject.FromObject(validatedToken);
+                        JObject jObjectToken = JObject.FromObject(validatedToken);    
+
                         foreach (JObject claim in jObjectToken["Claims"])
-                        {
-                            if ((string)claim["Value"] == "Administrator")
+                        {          
+            
+                            if((string)claim["Type"] == "role")
                             {
-                                isAuthorised = 2;
-                                tokenReturnString = new ReturnString() {Message = isAuthorised.ToString(), Type = authenticatedString };
-                                return JObject.FromObject(tokenReturnString);
+                                role = claim["Value"].ToString();
                             }
+
+                            if((string)claim["Type"] == "unique_name")
+                            {
+                                id = claim["Value"].ToString();
+                            }
+                            //if ((string)claim["Value"] == "Administrator")
+                            //{
+                            //    isAuthorised = 2;
+                            //    tokenReturnString = new LoginMessage() {Message = isAuthorised.ToString(), Type = authenticatedString, UserID=};
+                            //    return JObject.FromObject(tokenReturnString);
+                            //}
+                        }
+                        if(role == "Administrator")
+                        {
+                            isAuthorised = 2;
+                            tokenReturnString = new LoginMessage() {Message = isAuthorised.ToString(), Type = authenticatedString, UserID=id};
+                            return JObject.FromObject(tokenReturnString);
+
+                        }
+                        else if(role == "User")
+                        {
+                            isAuthorised = 1;
+                            tokenReturnString = new LoginMessage() { Message = isAuthorised.ToString(), Type = authenticatedString, UserID = id };
+                            return JObject.FromObject(tokenReturnString);
+                        }
+                        else
+                        {
+                            isAuthorised = 0;
+                            tokenReturnString = new LoginMessage() { Message = isAuthorised.ToString(), Type = notAuthenticatedString, UserID = "0" };
+                            return JObject.FromObject(tokenReturnString);
                         }
 
                     }
                     catch (SecurityTokenExpiredException)
                     {
-                        tokenReturnString = new ReturnString() { Message = "Expired", Type = notAuthenticatedString };
+                        tokenReturnString = new LoginMessage() { Message = "Expired", Type = notAuthenticatedString };
                         return JObject.FromObject(tokenReturnString);
                     }
                     catch (SecurityTokenInvalidAudienceException)
                     {
-                        tokenReturnString = new ReturnString() { Message = "Invalid Audience", Type = notAuthenticatedString };
+                        tokenReturnString = new LoginMessage() { Message = "Invalid Audience", Type = notAuthenticatedString };
                         return JObject.FromObject(tokenReturnString);
                     }
                     catch (SecurityTokenInvalidIssuerException)
                     {
-                       tokenReturnString = new ReturnString() { Message = "Invalid Issuer", Type = notAuthenticatedString };
+                       tokenReturnString = new LoginMessage() { Message = "Invalid Issuer", Type = notAuthenticatedString };
                         return JObject.FromObject(tokenReturnString);
                     }
                     catch (SecurityTokenInvalidSigningKeyException)
                     {
-                        tokenReturnString = new ReturnString() { Message = "Invalid Key", Type = notAuthenticatedString };
+                        tokenReturnString = new LoginMessage() { Message = "Invalid Key", Type = notAuthenticatedString };
                         return JObject.FromObject(tokenReturnString);
                     }
 
@@ -277,7 +306,7 @@ namespace ProjectManagerAPI.APIControllers
                 {
                     throw e;
                 }
-                return JObject.FromObject(new ReturnString() {Message = "Hit the end", Type = notAuthenticatedString });
+                return JObject.FromObject(new LoginMessage() {Message = "Hit the end", Type = notAuthenticatedString });
             }
         }
     }

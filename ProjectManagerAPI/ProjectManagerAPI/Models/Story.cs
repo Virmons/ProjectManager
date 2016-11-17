@@ -10,7 +10,6 @@ namespace ProjectManagerAPI.Models
         public int ID { get; set; }
         public string StoryName { get; set; }
         public DateTime DateCreated { get; set; }
-        public int ProjectID { get; set; }
         public string Theme { get; set; }
         public string Actor { get; set; }
         public string IWantTo { get; set; }
@@ -19,7 +18,14 @@ namespace ProjectManagerAPI.Models
         public int Priority { get; set; }
         public string Estimate { get; set; }
         public string TimeEstimate { get; set; }
-        public int SprintID { get; set; }
+        public float PercentageCompletion { get; set; }
         public int Status { get; set; }
+        public string CreatedBy { get; set; }
+        public int ProjectID { get; set; }
+        public int SprintID { get; set; }
+        public bool Active { get; set; }
+        public DateTime LastEdited { get; set; }
+        public string LastEditedBy { get; set; }
+
     }
 }

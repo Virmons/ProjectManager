@@ -12,12 +12,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.simeons.projectmanager.Model.Message;
 import com.example.simeons.projectmanager.Model.UserDetails;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,10 +52,12 @@ public class LoginActivity extends Activity  {
         mButtonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Validate()) {
 
-                    UserDetails userDetails = new UserDetails(mEditTextUsername.getText().toString(), mEditTextPassword.getText().toString());
+                mButtonLogin.setEnabled(false);
 
+                UserDetails userDetails = new UserDetails(mEditTextUsername.getText().toString(), mEditTextPassword.getText().toString());
+
+                if(Validate(userDetails)){
                     loginTask = new LoginTask();
 
                     loginTask.execute(userDetails);
@@ -75,28 +77,32 @@ public class LoginActivity extends Activity  {
         String token = sharedPref.getString("ProjectManagerToken", "");
         if(token != ""){
 
+            mButtonLogin.setEnabled(false);
             authenticateTask = new LoginTask();
             authenticateTask.execute(token);
-
         }
 
 
 
     }
 
-    public boolean Validate(){
-        return true;
+    public boolean Validate(UserDetails userDetails){
+
+        boolean valid = true;
+
+        if(userDetails.User.length() == 0 || userDetails.User.length() > 50 ){
+
+            valid = false;
+
+        }
+        else if(userDetails.Password.length() == 0 || userDetails.Password.length() > 50){
+
+            valid = false;
+
+        }
+
+        return valid;
     }
-
-    public void authoriseToken(String token){
-        if(token != ""){
-
-                toProjectOverview();
-
-            }
-
-    }
-
 
     class LoginTask extends AsyncTask<Object, Void, String> {
 
@@ -118,21 +124,23 @@ public class LoginActivity extends Activity  {
 
         }
 
-        protected void onPostExecute(Integer result) {
+        protected void onPostExecute(String result) {
 
         }
 
     }
 
-    public void toProjectOverview() {
+    public void toProjectOverview(String userID, String token) {
 
         Intent intent = new Intent(LoginActivity.this, ProjectActivity.class);
+        intent.putExtra("UserID",Integer.parseInt(userID));
+        intent.putExtra("Token", token);
         startActivity(intent);
         finish();
 
     }
 
-    public void postToAPI(String url,  Object dataToPost)
+    public void postToAPI(String url, final Object dataToPost)
     {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
@@ -152,13 +160,21 @@ public class LoginActivity extends Activity  {
                 @Override
                 public void onResponse(Call<Object> call, Response<Object> response) {
                     String body = response.body().toString();
-                    JsonObject loginMessage = new JsonParser().parse(body).getAsJsonObject();
 
-                    Gson gson = new Gson();
-                    Message message = gson.fromJson(loginMessage, Message.class);
+                    JSONObject message;
+                    String type = "";
+                    String messageContent= "";
+                    String userID = "";
+                    try {
+                        message = new JSONObject(body);
+                        type = message.getString("Type");
+                        messageContent = message.getString("Message");
+                        userID = message.getString("UserID");
+                    }
+                    catch(JSONException ex){
+                        ex.printStackTrace();
+                    }
 
-                    String type = message.Type;
-                    String messageContent = message.Message;
 
                     if(type.equals("Authenticated")) {
 
@@ -166,17 +182,22 @@ public class LoginActivity extends Activity  {
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("ProjectManagerToken", messageContent);
                         editor.commit();
-                        toProjectOverview();
+                        toProjectOverview(userID, messageContent);
 
                     }
                     else if(type.equals("NonAuthenticated")){
 
-                            Toast.makeText(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
+                        toastToUI(getApplicationContext(), messageContent,Toast.LENGTH_LONG);
 
                     }
                     else if(type.equals("Error")){
 
-                        Toast.makeText(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
+                        toastToUI(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
+
+                    }
+                    else{
+
+                        toastToUI(getApplicationContext(), messageContent, Toast.LENGTH_LONG);
 
                     }
 
@@ -197,29 +218,38 @@ public class LoginActivity extends Activity  {
                 public void onResponse(Call<Object> call, Response<Object> response) {
 
                     String body = response.body().toString();
-                    JsonObject loginMessage = new JsonParser().parse(body).getAsJsonObject();
 
-                    Gson gson = new Gson();
-                    Message message = gson.fromJson(loginMessage, Message.class);
-
-                    String type = message.Type;
-                    String messageContent = message.Message;
+                    JSONObject message = new JSONObject();
+                    String type = "";
+                    String messageContent= "";
+                    String userID = "";
+                    try {
+                        message = new JSONObject(body);
+                        type = message.getString("Type");
+                        messageContent = message.getString("Message");
+                        userID = message.getString("UserID");
+                    }
+                    catch(JSONException ex){
+                        ex.printStackTrace();
+                    }
 
                     if(type.equals("Authenticated")) {
 
-                        toProjectOverview();
+                        toProjectOverview(userID, dataToPost.toString());
 
                     }
                     else if(type.equals("NonAuthenticated")){
 
-                        Toast.makeText(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
+                        toastToUI(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
 
                     }
                     else if(type.equals("Error")){
 
-                        Toast.makeText(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
+                        toastToUI(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
 
                     }
+
+                    mButtonLogin.setEnabled(true);
 
                 }
 
@@ -248,6 +278,19 @@ public class LoginActivity extends Activity  {
 
         @POST("authoriseToken")
         Call<Object> authoriseToken(@Body String token);
+    }
+
+    public void toastToUI(final Context context, final String message, final int duration){
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                Toast.makeText(context ,message ,duration);
+
+            }
+        });
+
     }
 
     @Override
@@ -304,14 +347,6 @@ public class LoginActivity extends Activity  {
 //                case 404:
 //                    System.out.println("404");
 //
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//
-//                            Toast.makeText(getApplicationContext(), "User Not Found", Toast.LENGTH_SHORT);
-//
-//                        }
-//                    });
 //                    return null;
 //                case 501:
 //                    System.out.println("501");

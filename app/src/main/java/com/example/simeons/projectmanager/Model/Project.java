@@ -5,12 +5,12 @@ package com.example.simeons.projectmanager.Model;
  */
 
 public class Project {
-    private String ID;
-    private String ProjectName;
-    private String DateCreated;
-    private String Active;
-    private Story[] Stories;
-    private Person[] Personnel;
+    public String ID;
+    public String ProjectName;
+    public String DateCreated;
+    public String Active;
+    public Story[] Stories;
+    public Person[] Personnel;
 
 public Project(String iD,String projectName,String dateCreated,String active, Story[] stories, Person[] personnel){
     this.ID=iD;

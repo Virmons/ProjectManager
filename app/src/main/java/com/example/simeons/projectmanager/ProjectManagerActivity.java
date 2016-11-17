@@ -30,7 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import static com.example.simeons.projectmanager.Constants.PROJECTS_API_ADD;
+import static com.example.simeons.projectmanager.Constants.PROJECTS_API;
 
 public class ProjectManagerActivity extends AppCompatActivity {
 
@@ -166,7 +166,7 @@ public class ProjectManagerActivity extends AppCompatActivity {
         else if(mAddProjectButton.getText() == "Add Project"){
             //TODO Fire off add project API call
             HttpURLConnection urlConnection;
-            String url = PROJECTS_API_ADD;
+            String url = PROJECTS_API;
             String data = project.toString();
 
             try {

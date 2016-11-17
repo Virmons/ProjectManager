@@ -49,7 +49,7 @@ namespace ProjectManagerAPI.DataAccessLayer
             using(new MethodLogging())
             {
 
-                LoginExistPassword data = new LoginExistPassword() { Exists = 0, Password = ""};
+                LoginExistPassword data = new LoginExistPassword() { Exists = 0, Password = "", Role = false, UserID=0};
                 
                 try 
                 {
@@ -64,11 +64,13 @@ namespace ProjectManagerAPI.DataAccessLayer
                             command.Parameters.Add("@ReturnPass", SqlDbType.VarChar, -1).Value = data.Password;
                             command.Parameters["@ReturnPass"].Direction = ParameterDirection.Output;
                             command.Parameters.AddWithValue("@Role", data.Role).Direction = ParameterDirection.Output;
+                            command.Parameters.AddWithValue("@UserID", data.UserID).Direction = ParameterDirection.Output;
                             connection.Open();
                             command.ExecuteNonQuery();
                             data.Exists = int.Parse(command.Parameters["@Exists"].Value.ToString());
                             data.Password = command.Parameters["@ReturnPass"].Value.ToString();
                             data.Role = bool.Parse(command.Parameters["@Role"].Value.ToString());
+                            data.UserID = int.Parse(command.Parameters["@UserID"].Value.ToString());
                             connection.Close();
 
                         }

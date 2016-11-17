@@ -11,5 +11,7 @@ namespace ProjectManagerAPI.Models
         public string Name { get; set; }
         public string Initials { get; set; }
         public DateTime DateCreated { get; set; }
+        public bool Administrator { get; set; }
+        public bool Active { get; set; }
     }
 }

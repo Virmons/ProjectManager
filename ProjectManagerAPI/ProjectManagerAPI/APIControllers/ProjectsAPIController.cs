@@ -8,41 +8,53 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Wolf.Assembly.Logging;
+using ProjectManagerAPI.Utility;
 
 namespace ProjectManagerAPI.APIControllers
 {
     public class ProjectsAPIController : ApiController
     {        
         [HttpGet]
-        [Route("api/Projects/getAllProjects/{userInitials}")]
-        public JArray getAllProjects(string userInitials)
+        [Route("api/Projects/getAllProjects/{userID}")]
+        public JArray getAllProjects(int userID)
         {
             using (new MethodLogging())
             {
                 JArray returnProjectList = new JArray();
-
-                try
+                TokenAuthenticator tokenAuthenticator = new TokenAuthenticator();
+                int authorised = tokenAuthenticator.authoriseToken(this.Request.Headers.Authorization.ToString());
+                if(authorised == 2 || authorised == 1)
                 {
-                    List<Project> projectList = new List<Project>();
+                    try
+                    {
+                        List<Project> projectList = new List<Project>();
 
-                    ProjectDataAccess projectDataAccess = new ProjectDataAccess();
+                        ProjectDataAccess projectDataAccess = new ProjectDataAccess();
 
-                    projectList = projectDataAccess.getAllProjects(userInitials);
+                        projectList = projectDataAccess.getAllProjects(userID);
 
-                    returnProjectList = JArray.FromObject(projectList);                                       
-                    
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
+                        foreach (Project project in projectList)
+                        {
+                            project.Stories = projectDataAccess.getStoriesByProjectID(project.ID);
+                        }
+
+                        returnProjectList = JArray.FromObject(projectList);
+
+                    }
+                    catch (Exception e)
+                    {
+                        throw e;
+                    }
+
+                }  
+
                 return returnProjectList;
             }
         }
 
         [HttpPost]
         [Route("api/Projects/addProject")]
-        public bool addProject([FromBody] JToken project)
+        public bool addProject([FromBody]JObject project)
         {
             using (new MethodLogging())
             {
