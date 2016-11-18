@@ -12,12 +12,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.simeons.projectmanager.Model.Message;
 import com.example.simeons.projectmanager.Model.UserDetails;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -155,17 +153,17 @@ public class LoginActivity extends Activity  {
                 retrofit.create(LoginAPIEndpointInterface.class);
 
         if(dataToPost instanceof UserDetails) {
-            Call<Object> call = apiService.authoriseUser((UserDetails) dataToPost);
-            call.enqueue(new Callback<Object>() {
+            Call<Message> call = apiService.authoriseUser((UserDetails) dataToPost);
+            call.enqueue(new Callback<Message>() {
                 @Override
-                public void onResponse(Call<Object> call, Response<Object> response) {
-                    String body = response.body().toString();
-
-                    JSONObject message;
-                    String type = "";
-                    String messageContent= "";
-                    String userID = "";
-                    try {
+                public void onResponse(Call<Message> call, Response<Message> response) {
+//                    String body = response.body().toString();
+//
+//                    JSONObject message;
+                    String type = response.body().Type;
+                    String messageContent= response.body().Message;
+                    String userID = response.body().UserID;
+/*                    try {
                         message = new JSONObject(body);
                         type = message.getString("Type");
                         messageContent = message.getString("Message");
@@ -173,7 +171,7 @@ public class LoginActivity extends Activity  {
                     }
                     catch(JSONException ex){
                         ex.printStackTrace();
-                    }
+                    }*/
 
 
                     if(type.equals("Authenticated")) {
@@ -204,7 +202,7 @@ public class LoginActivity extends Activity  {
                 }
 
                 @Override
-                public void onFailure(Call<Object> call, Throwable t) {
+                public void onFailure(Call<Message> call, Throwable t) {
 
                     Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
 
@@ -212,26 +210,15 @@ public class LoginActivity extends Activity  {
             });
         }
         else if(dataToPost instanceof String){
-            Call<Object> call = apiService.authoriseToken((String) dataToPost);
-            call.enqueue(new Callback<Object>() {
+            Call<Message> call = apiService.authoriseToken((String) dataToPost);
+            call.enqueue(new Callback<Message>() {
                 @Override
-                public void onResponse(Call<Object> call, Response<Object> response) {
+                public void onResponse(Call<Message> call, Response<Message> response) {
 
-                    String body = response.body().toString();
+                    String type = response.body().Type;
+                    String messageContent = response.body().Message;
+                    String userID = response.body().UserID;
 
-                    JSONObject message = new JSONObject();
-                    String type = "";
-                    String messageContent= "";
-                    String userID = "";
-                    try {
-                        message = new JSONObject(body);
-                        type = message.getString("Type");
-                        messageContent = message.getString("Message");
-                        userID = message.getString("UserID");
-                    }
-                    catch(JSONException ex){
-                        ex.printStackTrace();
-                    }
 
                     if(type.equals("Authenticated")) {
 
@@ -254,7 +241,7 @@ public class LoginActivity extends Activity  {
                 }
 
                 @Override
-                public void onFailure(Call<Object> call, Throwable t) {
+                public void onFailure(Call<Message> call, Throwable t) {
 
                     Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
 
@@ -274,10 +261,10 @@ public class LoginActivity extends Activity  {
 //        Call<List<User>> groupList(@Path("id") int groupId, @Query("sort") String sort);
 
         @POST("authoriseCredentials")
-        Call<Object> authoriseUser(@Body UserDetails userDetails);
+        Call<Message> authoriseUser(@Body UserDetails userDetails);
 
         @POST("authoriseToken")
-        Call<Object> authoriseToken(@Body String token);
+        Call<Message> authoriseToken(@Body String token);
     }
 
     public void toastToUI(final Context context, final String message, final int duration){

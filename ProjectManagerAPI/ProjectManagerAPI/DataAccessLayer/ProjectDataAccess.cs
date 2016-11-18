@@ -1,4 +1,5 @@
 ﻿using ProjectManagerAPI.Models;
+using ProjectManagerAPI.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -66,6 +67,7 @@ namespace ProjectManagerAPI.DataAccessLayer
                     {
                         using(SqlCommand command = new SqlCommand("usp_StoryGetByProjectID", connection))
                         {
+                            
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.AddWithValue("@ProjectID", projectID).Direction = ParameterDirection.Input;
                             connection.Open();
@@ -74,25 +76,24 @@ namespace ProjectManagerAPI.DataAccessLayer
                             {
                                 projectStories.Add(new Story
                                 {
-                                    ID = int.Parse(reader["ID"].ToString()),
-                                    Actor = reader["Actor"].ToString(),
-                                    DateCreated = DateTime.Parse(reader["DateCreated"].ToString()),
-                                    Active = Boolean.Parse(reader["Active"].ToString()),
-                                    CreatedBy = reader["CreatedBy"].ToString(),
-                                    Estimate = reader["Estimate"].ToString(),
-                                    IWantTo = reader["IWantTo"].ToString(),
-                                    LastEdited = DateTime.Parse(reader["LastEdited"].ToString()),
-                                    LastEditedBy = reader["LastEditedBy"].ToString(),
-                                    Notes = reader["Notes"].ToString(),
-                                    PercentageCompletion = float.Parse(reader["PercentageCompletion"].ToString()),
-                                    Priority = 1,
-                                    ProjectID = int.Parse(reader["ProjectID"].ToString()),
-                                    SoThat = reader["SoThat"].ToString(),
-                                    SprintID = int.Parse(reader["SprintID"].ToString()),
-                                    Status = int.Parse(reader["Status"].ToString()),
-                                    StoryName = reader["Name"].ToString(),
-                                    Theme = reader["Theme"].ToString(),
-                                    TimeEstimate = reader["TimeEstimate"].ToString()
+                                    ID = reader.GetValueOrDefault<int>("ID"),
+                                    Actor = reader.GetValueOrDefault<string>("Actor"),
+                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
+                                    Active = reader.GetValueOrDefault<bool>("Active"),
+                                    CreatedBy = reader.GetValueOrDefault<string>("CreatedBy"),
+                                    Estimate = reader.GetValueOrDefault<string>("Estimate"),
+                                    IWantTo = reader.GetValueOrDefault<string>("IWantTo"),
+                                    LastEdited = reader.GetValueOrDefault<DateTime>("LastEdited"),
+                                    LastEditedBy = reader.GetValueOrDefault<string>("LastEditedBy"),
+                                    Notes = reader.GetValueOrDefault<string>("Notes"),
+                                    PercentageCompletion = reader.GetValueOrDefault<decimal>("PercentageCompletion"),
+                                    Priority = reader.GetValueOrDefault<int>("Priority"),
+                                    ProjectID = reader.GetValueOrDefault<int>("ProjectID"),
+                                    SoThat = reader.GetValueOrDefault<string>("SoThat"),
+                                    Status = reader.GetValueOrDefault<int>("Status"),
+                                    StoryName = reader.GetValueOrDefault<string>("Name"),
+                                    Theme = reader.GetValueOrDefault<string>("Theme"),
+                                    TimeEstimate = reader.GetValueOrDefault<decimal>("TimeEstimate")
                                 });
                             }
                             connection.Close();
@@ -107,6 +108,128 @@ namespace ProjectManagerAPI.DataAccessLayer
             }
         }
 
+        public List<Task> getTasksByStoryID(int? storyID)
+        {
+            using (new MethodLogging())
+            {
+                List<Task> storyTasks = new List<Task>();
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        using (SqlCommand command = new SqlCommand("usp_TaskGetByStoryID", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+                            command.Parameters.AddWithValue("@StoryID", storyID).Direction = ParameterDirection.Input;
+                            connection.Open();
+                            SqlDataReader reader = command.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                storyTasks.Add(new Task
+                                {
+                                    ID = reader.GetValueOrDefault<int>("ID"),
+                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
+                                    Active = reader.GetValueOrDefault<bool>("Active"),
+                                    CreatedBy = reader.GetValueOrDefault<string>("CreatedBy"),
+                                    Complete = reader.GetValueOrDefault<bool>("Complete"),
+                                    Description = reader.GetValueOrDefault<string>("Description"),
+                                    StoryID = reader.GetValueOrDefault<int>("StoryID"),
+                                    TimeEstimate = reader.GetValueOrDefault<int>("TimeEstimate"),
+                                    TimeTaken = reader.GetValueOrDefault<int>("TimeTaken")
+
+                                });
+                            }
+                            connection.Close();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+                return storyTasks;
+            }
+        }
+
+        public List<WorkLog> getWorkLogByTaskID(int? taskID)
+        {
+            using (new MethodLogging())
+            {
+                List<WorkLog> taskWorkLogs = new List<WorkLog>();
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        using (SqlCommand command = new SqlCommand("usp_WorkLogGetByTaskID", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+                            command.Parameters.AddWithValue("@TaskID", taskID).Direction = ParameterDirection.Input;
+                            connection.Open();
+                            SqlDataReader reader = command.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                taskWorkLogs.Add(new WorkLog
+                                {
+                                    ID = reader.GetValueOrDefault<int>("ID"),
+                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
+                                    Person = reader.GetValueOrDefault<string>("PersonName"),
+                                    PersonID = reader.GetValueOrDefault<int>("PersonID"),
+                                    TaskID = reader.GetValueOrDefault<int>("TaskID"),
+                                    Time = reader.GetValueOrDefault<int>("TimeTaken")
+
+                                });
+                            }
+                            connection.Close();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+                return taskWorkLogs;
+            }
+        }
+
+        public List<Person> getPersonellByProjectID(int? projectID)
+        {
+            using (new MethodLogging())
+            {
+                List<Person> projectPersonell = new List<Person>();
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    {
+                        using (SqlCommand command = new SqlCommand("usp_PersonGetByProjectID", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+                            command.Parameters.AddWithValue("@ProjectID", projectID).Direction = ParameterDirection.Input;
+                            connection.Open();
+                            SqlDataReader reader = command.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                projectPersonell.Add(new Person
+                                {
+                                    ID = reader.GetValueOrDefault<int>("ID"),
+                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
+                                    Active = reader.GetValueOrDefault<bool>("Active"),
+                                    Administrator = reader.GetValueOrDefault<bool>("Administrator"),
+                                    Initials = reader.GetValueOrDefault<string>("Initials"),
+                                    Name = reader.GetValueOrDefault<string>("Name")
+
+                                });
+                            }
+                            connection.Close();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+                return projectPersonell;
+            }
+        }
 
         public bool AddProject(Project data, string user)
         {

@@ -25,8 +25,9 @@ public class Story {
     public String Active;
     public String LastEdited;
     public String LastEditedBy;
+    public Task[] Tasks;
 
-    public Story(String iD, String storyName, String dateCreated, String theme, String actor, String iWantTo, String soThat, String notes, String priority, String estimate, String timeEstimate, String percentageCompletion, String status, String createdBy, String projectID, String sprintID, String active, String lastEdited, String lastEditedBy){
+    public Story(String iD, String storyName, String dateCreated, String theme, String actor, String iWantTo, String soThat, String notes, String priority, String estimate, String timeEstimate, String percentageCompletion, String status, String createdBy, String projectID, String sprintID, String active, String lastEdited, String lastEditedBy, Task[] tasks){
         this.ID = iD;
         this.StoryName = storyName;
         this.DateCreated = dateCreated;
@@ -46,6 +47,7 @@ public class Story {
         this.Active = active;
         this.LastEdited = lastEdited;
         this.LastEditedBy = lastEditedBy;
+        this.Tasks = tasks;
     }
 
 }

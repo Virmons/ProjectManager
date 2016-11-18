@@ -14,9 +14,13 @@ public class Message {
     @SerializedName("Type")
     public String Type;
 
-    public Message(String message, String type ) {
+    @SerializedName("UserID")
+    public String UserID;
+
+    public Message(String message, String type, String userID ) {
         this.Message = message;
         this.Type = type;
+        this.UserID = userID;
     }
 
 }
