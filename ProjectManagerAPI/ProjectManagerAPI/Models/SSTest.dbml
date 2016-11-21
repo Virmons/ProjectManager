@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="SSTest" Class="SSTestDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="WebSettings" ConnectionString="Data Source=WolfSqlDev2016;Initial Catalog=SSTest;User ID=SSTestAdmin" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="SSTestConnectionString1" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.Person" Member="Persons">
+    <Type Name="Person">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Initials" Type="System.String" DbType="VarChar(5) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Column Name="Administrator" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedBy" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Person_Person" Member="Persons" ThisKey="CreatedBy" OtherKey="ID" Type="Person" />
+      <Association Name="Person_Project" Member="Projects" ThisKey="ID" OtherKey="CreatedByPersonID" Type="Project" />
+      <Association Name="Person_Story" Member="Stories" ThisKey="ID" OtherKey="CreatedByPersonID" Type="Story" />
+      <Association Name="Person_Task" Member="Tasks" ThisKey="ID" OtherKey="CreatedByID" Type="Task" />
+      <Association Name="Person_Sprint" Member="Sprints" ThisKey="ID" OtherKey="CreatedByPersonID" Type="Sprint" />
+      <Association Name="Person_ProjectPerson" Member="ProjectPersons" ThisKey="ID" OtherKey="PersonID" Type="ProjectPerson" />
+      <Association Name="WorkLog_Person" Member="WorkLog" ThisKey="ID" OtherKey="PersonID" Type="WorkLog" IsForeignKey="true" />
+      <Association Name="Person_Person" Member="Person1" ThisKey="ID" OtherKey="CreatedBy" Type="Person" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Project" Member="Projects">
+    <Type Name="Project" Id="ID1">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Member="ProjectName" Storage="_Name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedBy" Member="CreatedByPersonID" Storage="_CreatedBy" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Member="CreatedByPersonName" Type="System.String" CanBeNull="false" />
+      <Association Name="Project_Story" Member="Stories" ThisKey="ID" OtherKey="ProjectID" Type="Story" />
+      <Association Name="Project_ProjectPerson" Member="ProjectPersons" ThisKey="ID" OtherKey="ProjectID" Type="ProjectPerson" />
+      <Association Name="Person_Project" Member="Person" ThisKey="CreatedByPersonID" OtherKey="ID" Type="Person" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Story" Member="Stories">
+    <Type Name="Story">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Column Name="ThemeID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="ActorID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="IWantTo" Type="System.String" DbType="VarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="SoThat" Type="System.String" DbType="VarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="Notes" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="Priority" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Estimate" Type="System.String" DbType="VarChar(8) NOT NULL" CanBeNull="false" />
+      <Column Name="TimeEstimate" Type="System.Decimal" DbType="Decimal(3,0) NOT NULL" CanBeNull="false" />
+      <Column Name="Status" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedByPersonID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="ProjectID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="PercentageCompletion" Type="System.Decimal" DbType="Decimal(3,0) NOT NULL" CanBeNull="false" />
+      <Association Name="Story_Task" Member="Tasks" ThisKey="ID" OtherKey="StoryID" Type="Task" />
+      <Association Name="Person_Story" Member="Person" ThisKey="CreatedByPersonID" OtherKey="ID" Type="Person" IsForeignKey="true" />
+      <Association Name="Project_Story" Member="Project" ThisKey="ProjectID" OtherKey="ID" Type="Project" IsForeignKey="true" />
+      <Association Name="Actor_Story" Member="Actor" ThisKey="ActorID" OtherKey="ID" Type="Actor" IsForeignKey="true" />
+      <Association Name="Theme_Story" Member="Theme" ThisKey="ThemeID" OtherKey="ID" Type="Theme" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Actor" Member="Actors">
+    <Type Name="Actor">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Association Name="Actor_Story" Member="Stories" ThisKey="ID" OtherKey="ActorID" Type="Story" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Theme" Member="Themes">
+    <Type Name="Theme">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Association Name="Theme_Story" Member="Stories" ThisKey="ID" OtherKey="ThemeID" Type="Story" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Task" Member="Tasks">
+    <Type Name="Task">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Description" Type="System.String" DbType="VarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedByID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="TimeEstimate" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="StoryID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="Complete" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="Task_WorkLog" Member="WorkLogs" ThisKey="ID" OtherKey="TaskID" Type="WorkLog" />
+      <Association Name="Task_SprintTask" Member="SprintTasks" ThisKey="ID" OtherKey="TaskID" Type="SprintTask" />
+      <Association Name="Person_Task" Member="Person" ThisKey="CreatedByID" OtherKey="ID" Type="Person" IsForeignKey="true" />
+      <Association Name="Story_Task" Member="Story" ThisKey="StoryID" OtherKey="ID" Type="Story" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Sprint" Member="Sprints">
+    <Type Name="Sprint">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Number" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Column Name="DateStarted" Type="System.DateTime" DbType="DateTime2" CanBeNull="true" />
+      <Column Name="DateEnded" Type="System.DateTime" DbType="DateTime2" CanBeNull="true" />
+      <Column Name="CreatedByPersonID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Sprint_SprintTask" Member="SprintTasks" ThisKey="ID" OtherKey="SprintID" Type="SprintTask" />
+      <Association Name="Person_Sprint" Member="Person" ThisKey="CreatedByPersonID" OtherKey="ID" Type="Person" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.WorkLog" Member="WorkLogs">
+    <Type Name="WorkLog">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="TaskID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Time" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Column Name="PersonID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="WorkLog_Person" Member="Persons" ThisKey="PersonID" OtherKey="ID" Type="Person" />
+      <Association Name="Task_WorkLog" Member="Task" ThisKey="TaskID" OtherKey="ID" Type="Task" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ProjectPerson" Member="ProjectPersons">
+    <Type Name="ProjectPerson">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ProjectID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="PersonID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="Person_ProjectPerson" Member="Person" ThisKey="PersonID" OtherKey="ID" Type="Person" IsForeignKey="true" />
+      <Association Name="Project_ProjectPerson" Member="Project" ThisKey="ProjectID" OtherKey="ID" Type="Project" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SprintTask" Member="SprintTasks">
+    <Type Name="SprintTask">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="SprintID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="TaskID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="Sprint_SprintTask" Member="Sprint" ThisKey="SprintID" OtherKey="ID" Type="Sprint" IsForeignKey="true" />
+      <Association Name="Task_SprintTask" Member="Task" ThisKey="TaskID" OtherKey="ID" Type="Task" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Function Name="dbo.LINQ_ProjectGetByUserID" Method="LINQ_ProjectGetByUserID">
+    <Parameter Name="UserID" Parameter="userID" Type="System.Int32" DbType="Int" />
+    <ElementType IdRef="ID1" />
+  </Function>
+</Database>
