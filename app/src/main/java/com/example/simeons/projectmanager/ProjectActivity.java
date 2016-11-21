@@ -68,7 +68,7 @@ public class ProjectActivity extends Activity {
                 // ListView Clicked item value
                 String itemValue = (String) listView.getItemAtPosition(position);
 
-                        int ID = Integer.parseInt(projects.get(position).ID);
+                        int ID = Integer.parseInt(projects.get(position).ID) -1;
                         Boolean active = Boolean.parseBoolean(projects.get(position).Active);
                         if (active == true) {
                             showProjectDetails(ID);
@@ -117,6 +117,7 @@ public class ProjectActivity extends Activity {
 
         Intent intent = new Intent(ProjectActivity.this, ProjectInProgressActivity.class);
         intent.putExtra("ID", ID);
+        intent.putExtra("Project",(new Gson()).toJson(projects.get(ID)));
         startActivity(intent);
 
     }
@@ -124,6 +125,7 @@ public class ProjectActivity extends Activity {
     public void editProject(int ID) {
         Intent intent = new Intent(ProjectActivity.this, ProjectManagerActivity.class);
         intent.putExtra("ID", ID);
+        String project = (new Gson()).toJson(projects.get(ID));
         startActivityForResult(intent, EDIT_PROJECT_REQUEST);
     }
 
