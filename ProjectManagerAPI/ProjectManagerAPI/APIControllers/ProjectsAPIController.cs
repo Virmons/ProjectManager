@@ -24,59 +24,49 @@ namespace ProjectManagerAPI.APIControllers
                 JArray returnProjectList = new JArray();
                 //TokenAuthenticator tokenAuthenticator = new TokenAuthenticator();
                 //int authorised = tokenAuthenticator.authoriseToken(this.Request.Headers.Authorization.ToString());
-                //int authorised = 2;
-                //if(authorised == 2 || authorised == 1)
-                //{
-                //    try
-                //    {
-                //        List<Project> projectList = new List<Project>();
+                int authorised = 2;
+                if (authorised == 2 || authorised == 1)
+                {
+                    try
+                    {
+                        List<Project> projectList = new List<Project>();
 
-                //        ProjectDataAccess projectDataAccess = new ProjectDataAccess();
+                        ProjectDataAccess projectDataAccess = new ProjectDataAccess();
 
-                //        //Get a list of projects the user is a personnel of
-                //        projectList = projectDataAccess.getAllProjects(userID);
+                        //Get a list of projects the user is a personnel of
+                        projectList = projectDataAccess.getAllProjects(userID);
 
-                //        foreach (Project project in projectList)
-                //        {
-                //            List<Story> projectStories = projectDataAccess.getStoriesByProjectID(project.ID);
-                //            List<Person> projectPersonnel = projectDataAccess.getPersonellByProjectID(project.ID);
-
-                //            foreach(Story story in projectStories)
-                //            {
-                //                List<Task> storyTasks = projectDataAccess.getTasksByStoryID(story.ID);
-
-                //                foreach(Task task in storyTasks)
-                //                {
-                //                    task.WorkLogList = projectDataAccess.getWorkLogByTaskID(task.ID);
-                //                }
-
-                //                story.Tasks = storyTasks;
-                //            }
-
-                //            project.Personell = projectPersonnel;
-
-                //            project.Stories = projectStories;
-                //        }
-
-                //        returnProjectList = JArray.FromObject(projectList);
-
-                //    }
-                //    catch (Exception e)
-                //    {
-                //        throw e;
-                //    }
-
-                //}  
-
-                SSTestDataContext db = new SSTestDataContext();
-
-                var Projects = db.LINQ_ProjectGetByUserID(userID);
-
-                string newJObject = JsonConvert.SerializeObject(Projects, Formatting.None,
-                        new JsonSerializerSettings()
+                        foreach (Project project in projectList)
                         {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                        }); ;
+                            List<Story> projectStories = projectDataAccess.getStoriesByProjectID(project.ID);
+                            List<Person> projectPersonnel = projectDataAccess.getPersonellByProjectID(project.ID);
+
+                            foreach (Story story in projectStories)
+                            {
+                                List<Task> storyTasks = projectDataAccess.getTasksByStoryID(story.ID);
+
+                                foreach (Task task in storyTasks)
+                                {
+                                    task.WorkLogs = projectDataAccess.getWorkLogByTaskID(task.ID);
+                                }
+
+                                story.Tasks = storyTasks;
+                            }
+
+                            project.Personell = projectPersonnel;
+
+                            project.Stories = projectStories;
+                        }
+
+                        returnProjectList = JArray.FromObject(projectList);
+
+                    }
+                    catch (Exception e)
+                    {
+                        throw e;
+                    }
+
+                }
 
                 return returnProjectList;
             }

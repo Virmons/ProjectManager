@@ -10,7 +10,7 @@ public class Project {
     public String DateCreated;
     public String Active;
     public Story[] Stories;
-    public Person[] Personnel;
+    public Person[] Personell;
 
 public Project(String iD,String projectName,String dateCreated,String active, Story[] stories, Person[] personnel){
     this.ID=iD;
@@ -18,6 +18,6 @@ public Project(String iD,String projectName,String dateCreated,String active, St
     this.DateCreated=dateCreated;
     this.Active=active;
     this.Stories = stories;
-    this.Personnel = personnel;
+    this.Personell = personnel;
     }
 }
