@@ -6,12 +6,12 @@ package com.example.simeons.projectmanager.Model;
 
 public class Person {
 
-    private String ID;
-    private String Name;
-    private String Initials;
-    private String DateCreated;
-    private String Administrator;
-    private String Active;
+    public String ID;
+    public String Name;
+    public String Initials;
+    public String DateCreated;
+    public String Administrator;
+    public String Active;
 
     public Person(String iD, String name, String initials, String dateCreated, String administrator, String active)
     {

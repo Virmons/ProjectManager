@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.simeons.projectmanager.Model.Message;
@@ -30,8 +29,6 @@ import static com.example.simeons.projectmanager.Constants.LOGIN_API_LOGIN;
 public class LoginActivity extends Activity  {
     Button mButtonLogin, mButtonCancel;
     EditText mEditTextUsername, mEditTextPassword;
-
-    TextView tx1;
 
     LoginTask loginTask;
     LoginTask authenticateTask;
@@ -73,7 +70,7 @@ public class LoginActivity extends Activity  {
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String token = sharedPref.getString("ProjectManagerToken", "");
-        if(token != ""){
+        if(!token.equals("")){
 
             mButtonLogin.setEnabled(false);
             authenticateTask = new LoginTask();
@@ -174,29 +171,31 @@ public class LoginActivity extends Activity  {
                     }*/
 
 
-                    if(type.equals("Authenticated")) {
+                    switch (type) {
+                        case "Authenticated":
 
-                        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("ProjectManagerToken", messageContent);
-                        editor.commit();
-                        toProjectOverview(userID, messageContent);
+                            SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("ProjectManagerToken", messageContent);
+                            editor.apply();
+                            toProjectOverview(userID, messageContent);
 
-                    }
-                    else if(type.equals("NonAuthenticated")){
+                            break;
+                        case "NonAuthenticated":
 
-                        toastToUI(getApplicationContext(), messageContent,Toast.LENGTH_LONG);
+                            toastToUI(getApplicationContext(), messageContent, Toast.LENGTH_LONG);
 
-                    }
-                    else if(type.equals("Error")){
+                            break;
+                        case "Error":
 
-                        toastToUI(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
+                            toastToUI(getApplicationContext(), messageContent, Toast.LENGTH_LONG);
 
-                    }
-                    else{
+                            break;
+                        default:
 
-                        toastToUI(getApplicationContext(), messageContent, Toast.LENGTH_LONG);
+                            toastToUI(getApplicationContext(), messageContent, Toast.LENGTH_LONG);
 
+                            break;
                     }
 
                 }
@@ -204,7 +203,7 @@ public class LoginActivity extends Activity  {
                 @Override
                 public void onFailure(Call<Message> call, Throwable t) {
 
-                    Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
+                    toastToUI(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
 
                 }
             });
@@ -220,20 +219,22 @@ public class LoginActivity extends Activity  {
                     String userID = response.body().UserID;
 
 
-                    if(type.equals("Authenticated")) {
+                    switch (type) {
+                        case "Authenticated":
 
-                        toProjectOverview(userID, dataToPost.toString());
+                            toProjectOverview(userID, dataToPost.toString());
 
-                    }
-                    else if(type.equals("NonAuthenticated")){
+                            break;
+                        case "NonAuthenticated":
 
-                        toastToUI(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
+                            toastToUI(getApplicationContext(), messageContent, Toast.LENGTH_LONG);
 
-                    }
-                    else if(type.equals("Error")){
+                            break;
+                        case "Error":
 
-                        toastToUI(getApplicationContext(),messageContent,Toast.LENGTH_LONG);
+                            toastToUI(getApplicationContext(), messageContent, Toast.LENGTH_LONG);
 
+                            break;
                     }
 
                     mButtonLogin.setEnabled(true);
@@ -273,7 +274,7 @@ public class LoginActivity extends Activity  {
             @Override
             public void run() {
 
-                Toast.makeText(context ,message ,duration);
+                Toast.makeText(context ,message ,duration).show();
 
             }
         });

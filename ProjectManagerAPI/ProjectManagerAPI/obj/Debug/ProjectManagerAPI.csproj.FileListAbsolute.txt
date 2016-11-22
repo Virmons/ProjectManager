@@ -33,13 +33,11 @@ C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManag
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Web.WebPages.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Web.WebPages.Deployment.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Web.WebPages.Razor.xml
-C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\obj\Debug\ProjectManagerAPI.csprojResolveAssemblyReference.cache
-C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\Microsoft.IdentityModel.Logging.dll
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\Microsoft.IdentityModel.Tokens.dll
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.IdentityModel.Tokens.Jwt.dll
-C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\Microsoft.IdentityModel.Logging.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\Microsoft.IdentityModel.Tokens.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.IdentityModel.Tokens.Jwt.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\BCrypt.Net.dll
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\BCrypt.Net.pdb
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\BCrypt.Net.xml
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\obj\Debug\ProjectManagerAPI.csprojResolveAssemblyReference.cache

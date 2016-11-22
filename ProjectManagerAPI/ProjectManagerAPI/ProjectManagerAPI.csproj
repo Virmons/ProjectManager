@@ -188,7 +188,11 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="DataAccessLayer\KeyDataAccess.cs" />
     <Compile Include="DataAccessLayer\LoginDataAccess.cs" />
+    <Compile Include="DataAccessLayer\PersonDataAccess.cs" />
     <Compile Include="DataAccessLayer\ProjectDataAccess.cs" />
+    <Compile Include="DataAccessLayer\StoryDataAccess.cs" />
+    <Compile Include="DataAccessLayer\TaskDataAccess.cs" />
+    <Compile Include="DataAccessLayer\WorkLogDataAccess.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -199,6 +203,7 @@
     <Compile Include="Models\Story.cs" />
     <Compile Include="Models\Task.cs" />
     <Compile Include="Models\UserPassPair.cs" />
+    <Compile Include="Models\UserRolePair.cs" />
     <Compile Include="Models\WorkLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\KeyGenerator.cs" />

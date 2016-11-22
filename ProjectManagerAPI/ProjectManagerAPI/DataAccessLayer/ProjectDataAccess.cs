@@ -57,46 +57,26 @@ namespace ProjectManagerAPI.DataAccessLayer
             }
         }
 
-        public List<Story> getStoriesByProjectID(int projectID)
+        public bool UpdateProject(Project data, int userID)
         {
             using (new MethodLogging())
             {
-                List<Story> projectStories = new List<Story>();
+                bool wasAdded = false;
+
                 try
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
                     {
-                        using (SqlCommand command = new SqlCommand("usp_StoryGetByProjectID", connection))
+                        using (SqlCommand command = new SqlCommand("usp_ProjectUpdateProject", connection))
                         {
-
                             command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@ProjectID", projectID).Direction = ParameterDirection.Input;
+                            command.Parameters.AddWithValue("@UserID", userID).Direction = ParameterDirection.Input;
+                            command.Parameters.AddWithValue("@ProjectName", data.ProjectName).Direction = ParameterDirection.Input;
+                            command.Parameters.AddWithValue("@ProjectID", data.ID).Direction = ParameterDirection.Input;
+                            command.Parameters.AddWithValue("@wasUpdated", wasAdded).Direction = ParameterDirection.Output;
                             connection.Open();
-                            SqlDataReader reader = command.ExecuteReader();
-                            while (reader.Read())
-                            {
-                                projectStories.Add(new Story
-                                {
-                                    ID = reader.GetValueOrDefault<int>("ID"),
-                                    Actor = reader.GetValueOrDefault<string>("Actor"),
-                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
-                                    Active = reader.GetValueOrDefault<bool>("Active"),
-                                    CreatedBy = reader.GetValueOrDefault<string>("CreatedBy"),
-                                    Estimate = reader.GetValueOrDefault<string>("Estimate"),
-                                    IWantTo = reader.GetValueOrDefault<string>("IWantTo"),
-                                    LastEdited = reader.GetValueOrDefault<DateTime>("LastEdited"),
-                                    LastEditedBy = reader.GetValueOrDefault<string>("LastEditedBy"),
-                                    Notes = reader.GetValueOrDefault<string>("Notes"),
-                                    PercentageCompletion = reader.GetValueOrDefault<decimal>("PercentageCompletion"),
-                                    Priority = reader.GetValueOrDefault<int>("Priority"),
-                                    ProjectID = reader.GetValueOrDefault<int>("ProjectID"),
-                                    SoThat = reader.GetValueOrDefault<string>("SoThat"),
-                                    Status = reader.GetValueOrDefault<int>("Status"),
-                                    StoryName = reader.GetValueOrDefault<string>("Name"),
-                                    Theme = reader.GetValueOrDefault<string>("Theme"),
-                                    TimeEstimate = reader.GetValueOrDefault<decimal>("TimeEstimate")
-                                });
-                            }
+                            command.ExecuteNonQuery();
+                            wasAdded = bool.Parse(command.Parameters["@wasUpdated"].Value.ToString());
                             connection.Close();
                         }
                     }
@@ -105,132 +85,44 @@ namespace ProjectManagerAPI.DataAccessLayer
                 {
                     throw e;
                 }
-                return projectStories;
+
+                return wasAdded;
             }
         }
 
-        public List<Task> getTasksByStoryID(int? storyID)
-        {
-            using (new MethodLogging())
-            {
-                List<Task> storyTasks = new List<Task>();
-                try
-                {
-                    using (SqlConnection connection = new SqlConnection(connectionString))
-                    {
-                        using (SqlCommand command = new SqlCommand("usp_TaskGetByStoryID", connection))
-                        {
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@StoryID", storyID).Direction = ParameterDirection.Input;
-                            connection.Open();
-                            SqlDataReader reader = command.ExecuteReader();
-                            while (reader.Read())
-                            {
-                                storyTasks.Add(new Task
-                                {
-                                    ID = reader.GetValueOrDefault<int>("ID"),
-                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
-                                    Active = reader.GetValueOrDefault<bool>("Active"),
-                                    CreatedBy = reader.GetValueOrDefault<string>("CreatedBy"),
-                                    Complete = reader.GetValueOrDefault<bool>("Complete"),
-                                    Description = reader.GetValueOrDefault<string>("Description"),
-                                    StoryID = reader.GetValueOrDefault<int>("StoryID"),
-                                    TimeEstimate = reader.GetValueOrDefault<int>("TimeEstimate"),
-                                    TimeTaken = reader.GetValueOrDefault<int>("TimeTaken")
+        //public bool UpdatePersonnelIntermediate(Project project, Person person, int userID)
+        //{
+        //    using (new MethodLogging())
+        //    {
+        //        bool wasAdded = false;
 
-                                });
-                            }
-                            connection.Close();
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
-                return storyTasks;
-            }
-        }
+        //        try
+        //        {
+        //            using (SqlConnection connection = new SqlConnection(connectionString))
+        //            {
+        //                using (SqlCommand command = new SqlCommand("usp_ProjectUpdateProject", connection))
+        //                {
+        //                    command.CommandType = CommandType.StoredProcedure;
+        //                    command.Parameters.AddWithValue("@UserID", userID).Direction = ParameterDirection.Input;
+        //                    command.Parameters.AddWithValue("@ProjectID", project.ProjectName).Direction = ParameterDirection.Input;
+        //                    command.Parameters.AddWithValue("@PersonID", person.ID).Direction = ParameterDirection.Input;
+        //                    command.Parameters.AddWithValue("@wasUpdated", wasAdded).Direction = ParameterDirection.Output;
+        //                    connection.Open();
+        //                    command.ExecuteNonQuery();
+        //                    wasAdded = bool.Parse(command.Parameters["@wasUpdated"].Value.ToString());
+        //                    connection.Close();
+        //                }
+        //            }
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            throw e;
+        //        }
 
-        public List<WorkLog> getWorkLogByTaskID(int? taskID)
-        {
-            using (new MethodLogging())
-            {
-                List<WorkLog> taskWorkLogs = new List<WorkLog>();
-                try
-                {
-                    using (SqlConnection connection = new SqlConnection(connectionString))
-                    {
-                        using (SqlCommand command = new SqlCommand("usp_WorkLogGetByTaskID", connection))
-                        {
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@TaskID", taskID).Direction = ParameterDirection.Input;
-                            connection.Open();
-                            SqlDataReader reader = command.ExecuteReader();
-                            while (reader.Read())
-                            {
-                                taskWorkLogs.Add(new WorkLog
-                                {
-                                    ID = reader.GetValueOrDefault<int>("ID"),
-                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
-                                    Person = reader.GetValueOrDefault<string>("PersonName"),
-                                    PersonID = reader.GetValueOrDefault<int>("PersonID"),
-                                    TaskID = reader.GetValueOrDefault<int>("TaskID"),
-                                    Time = reader.GetValueOrDefault<int>("TimeTaken")
+        //        return wasAdded;
+        //    }
+        //}
 
-                                });
-                            }
-                            connection.Close();
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
-                return taskWorkLogs;
-            }
-        }
-
-        public List<Person> getPersonellByProjectID(int? projectID)
-        {
-            using (new MethodLogging())
-            {
-                List<Person> projectPersonell = new List<Person>();
-                try
-                {
-                    using (SqlConnection connection = new SqlConnection(connectionString))
-                    {
-                        using (SqlCommand command = new SqlCommand("usp_PersonGetByProjectID", connection))
-                        {
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@ProjectID", projectID).Direction = ParameterDirection.Input;
-                            connection.Open();
-                            SqlDataReader reader = command.ExecuteReader();
-                            while (reader.Read())
-                            {
-                                projectPersonell.Add(new Person
-                                {
-                                    ID = reader.GetValueOrDefault<int>("ID"),
-                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
-                                    Active = reader.GetValueOrDefault<bool>("Active"),
-                                    Administrator = reader.GetValueOrDefault<bool>("Administrator"),
-                                    Initials = reader.GetValueOrDefault<string>("Initials"),
-                                    Name = reader.GetValueOrDefault<string>("Name")
-
-                                });
-                            }
-                            connection.Close();
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
-                return projectPersonell;
-            }
-        }
 
         public bool AddProject(Project data, string user)
         {

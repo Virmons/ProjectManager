@@ -15,12 +15,14 @@ namespace ProjectManagerAPI.Utility
 {
     public class TokenAuthenticator
     {
-        public int authoriseToken(string tokenData)
+        public UserRolePair authoriseToken(string tokenData)
         {
             using (new MethodLogging())
             {
                 LoginMessage tokenReturnString = new LoginMessage();
-                int isAuthorised = 0;
+                UserRolePair userRole = new UserRolePair();
+                userRole.Role = 0;
+                userRole.UserID = 0;
                 try
                 {
                     string token = tokenData.ToString();
@@ -52,7 +54,7 @@ namespace ProjectManagerAPI.Utility
                         string id = "";
                         tokenHandler.ValidateToken(token,
                         tokenValidationParameters, out validatedToken);
-                        isAuthorised = 1;
+                        userRole.Role = 1;
                         JObject jObjectToken = JObject.FromObject(validatedToken);
 
                         foreach (JObject claim in jObjectToken["Claims"])
@@ -71,48 +73,50 @@ namespace ProjectManagerAPI.Utility
                         }
                         if (role == "Administrator")
                         {
-                            isAuthorised = 2;
-                            return isAuthorised;
+                            userRole.Role = 2;
+                            userRole.UserID = int.Parse(id);
+                            return userRole;
 
                         }
                         else if (role == "User")
                         {
-                            isAuthorised = 1;
-                            return isAuthorised;
+                            userRole.Role = 1;
+                            userRole.UserID = int.Parse(id);
+                            return userRole;
                         }
                         else
                         {
-                            isAuthorised = 0;
-                            return isAuthorised;
+                            userRole.Role = 0;
+                            return userRole;
                         }
 
                     }
                     catch (SecurityTokenExpiredException)
                     {
-                        isAuthorised = 0;
-                        return isAuthorised;
+                        userRole.Role = 0;
+                        return userRole;
                     }
                     catch (SecurityTokenInvalidAudienceException)
                     {
-                        isAuthorised = 0;
-                        return isAuthorised;
+                        userRole.Role = 0;
+                        return userRole;
                     }
                     catch (SecurityTokenInvalidIssuerException)
                     {
-                        isAuthorised = 0;
-                        return isAuthorised;
+                        userRole.Role = 0;
+                        return userRole;
                     }
                     catch (SecurityTokenInvalidSigningKeyException)
                     {
-                        isAuthorised = 0;
-                        return isAuthorised;
+                        userRole.Role = 0;
+                        return userRole;
                     }
 
                 }
                 catch (Exception e)
                 {
-                    isAuthorised = 0;
-                    return isAuthorised;
+                    userRole.Role = 0;
+                    return userRole;
                 }
 
             }

@@ -11,7 +11,7 @@ public class Project {
     public String CreatedBy;
     public String Active;
     public Story[] Stories;
-    public Person[] Personell;
+    public Person[] Personnel;
 
 public Project(String iD,String projectName,String dateCreated, String createdBy,String active, Story[] stories, Person[] personnel){
     this.ID=iD;
@@ -20,6 +20,6 @@ public Project(String iD,String projectName,String dateCreated, String createdBy
     this.CreatedBy = createdBy;
     this.Active=active;
     this.Stories = stories;
-    this.Personell = personnel;
+    this.Personnel = personnel;
     }
 }

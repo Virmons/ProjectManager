@@ -1,36 +1,48 @@
 package com.example.simeons.projectmanager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.simeons.projectmanager.Model.Message;
+import com.example.simeons.projectmanager.Model.Person;
+import com.example.simeons.projectmanager.Model.Project;
+import com.example.simeons.projectmanager.Model.Story;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
+
+import static android.view.View.VISIBLE;
 import static com.example.simeons.projectmanager.Constants.PROJECTS_API;
+import static java.lang.Thread.sleep;
 
 public class ProjectManagerActivity extends AppCompatActivity {
 
@@ -42,6 +54,12 @@ public class ProjectManagerActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private JSONArray stories;
     private JSONArray personnel;
+    private List<String> values;
+    private Boolean uploaded = false;
+    private String token;
+    private int userID;
+    private EditText mProjectName;
+    private Project project;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,16 +72,43 @@ public class ProjectManagerActivity extends AppCompatActivity {
         mTable1 = (ListView) findViewById(R.id.storiesList);
         mTable2 = (ListView) findViewById(R.id.personnelList);
         mProgressBar = (ProgressBar) findViewById(R.id.ProjectManagerProgressBar);
+        mProjectName = (EditText) findViewById(R.id.projectName);
 
-        int ID = getIntent().getIntExtra("ID", 0);
+        ArrayList<String> valuesStory = new ArrayList<>();
+        ArrayList<String> valuesPersonnel = new ArrayList<>();
+
+        userID = getIntent().getIntExtra("UserID", 0);
 
         stories = new JSONArray();
         personnel = new JSONArray();
 
-        if (ID != 0) {
-            mAddProjectButton.setText(R.string.btn_update_project);
-            //TODO Set this as a runnable and get and populate the listviews
-            new getProjectData().execute(ID);
+        token = getIntent().getStringExtra("Token");
+
+        String projectString = getIntent().getStringExtra("Project");
+        if(projectString != null){
+            project = (new Gson()).fromJson(projectString,Project.class);
+            if (Integer.parseInt(project.ID) != 0) {
+                mProjectName.setText(project.ProjectName);
+
+                mAddProjectButton.setText(R.string.btn_update_project);
+                for (Story story : project.Stories) {
+
+                    valuesStory.add(story.StoryName);
+                }
+                for (Person person : project.Personnel) {
+
+                    valuesPersonnel.add(person.Name);
+                }
+                ArrayAdapter<String> adapter1 = new ArrayAdapter<>(ProjectManagerActivity.this,
+                        android.R.layout.simple_list_item_1, android.R.id.text1, valuesStory);
+
+                ArrayAdapter<String> adapter2 = new ArrayAdapter<>(ProjectManagerActivity.this,
+                        android.R.layout.simple_list_item_1, android.R.id.text1, valuesPersonnel);
+
+                // Assign adapter to ListView
+                mTable1.setAdapter(adapter1);
+                mTable2.setAdapter(adapter2);
+            }
         }
 
         // ListView Item Click Listener
@@ -72,16 +117,13 @@ public class ProjectManagerActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                // ListView Clicked item index
-                int itemPosition = position;
-
                 // ListView Clicked item value
                 String itemValue = (String) mTable1.getItemAtPosition(position);
 
                 try {
-                    int ID = stories.getJSONObject(position).getInt("ID");
+                    int ID = stories.getJSONObject(position).getInt("ID") - 1;
                     Boolean active = stories.getJSONObject(position).getBoolean("Active");
-                    if (active == true) {
+                    if (active) {
                         showStoryDetails(ID);
                     }
                 } catch (JSONException e) {
@@ -89,7 +131,7 @@ public class ProjectManagerActivity extends AppCompatActivity {
                 }
                 // Show Alert
                 Toast.makeText(getApplicationContext(),
-                        "Position :" + itemPosition + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
+                        "Position :" + position + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
                         .show();
 
             }
@@ -101,7 +143,7 @@ public class ProjectManagerActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
-                    int ID = stories.getJSONObject(position).getInt("ID");
+                    int ID = stories.getJSONObject(position).getInt("ID") - 1;
                     editStoryDetails(ID);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -116,16 +158,13 @@ public class ProjectManagerActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                // ListView Clicked item index
-                int itemPosition = position;
-
                 // ListView Clicked item value
                 String itemValue = (String) mTable2.getItemAtPosition(position);
 
                 try {
                     int ID = personnel.getJSONObject(position).getInt("ID");
                     Boolean active = personnel.getJSONObject(position).getBoolean("Active");
-                    if (active == true) {
+                    if (active) {
                         showPersonnelDetails(ID);
                     }
                 } catch (JSONException e) {
@@ -133,7 +172,7 @@ public class ProjectManagerActivity extends AppCompatActivity {
                 }
                 // Show Alert
                 Toast.makeText(getApplicationContext(),
-                        "Position :" + itemPosition + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
+                        "Position :" + position + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
                         .show();
 
             }
@@ -157,53 +196,14 @@ public class ProjectManagerActivity extends AppCompatActivity {
     }
 
     //For the addproject button, navigates to add Project Activity
-    public String addProject(View view, JSONArray project){
+    public String addProject(View view){
         String result = null;
-        if(mAddProjectButton.getText() == "Update"){
+        if(mAddProjectButton.getText().equals("Update")){
             //TODO Fire off update project API call
-
+            new projectManagerAsync().execute(project);
         }
-        else if(mAddProjectButton.getText() == "Add Project"){
+        else if(mAddProjectButton.getText().equals("Add Project")) {
             //TODO Fire off add project API call
-            HttpURLConnection urlConnection;
-            String url = PROJECTS_API;
-            String data = project.toString();
-
-            try {
-                //Connect
-                urlConnection = (HttpURLConnection) ((new URL(url).openConnection()));
-                urlConnection.setDoOutput(true);
-                urlConnection.setRequestProperty("Content-Type", "application/json");
-                urlConnection.setRequestProperty("Accept", "application/json");
-                urlConnection.setRequestMethod("POST");
-                urlConnection.connect();
-
-                //Write
-                OutputStream outputStream = urlConnection.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                writer.write(data);
-                writer.close();
-                outputStream.close();
-
-                //Read
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"));
-
-                String line = null;
-                StringBuilder sb = new StringBuilder();
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    sb.append(line);
-                }
-
-                bufferedReader.close();
-                result = sb.toString();
-
-            }
-            catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
         }
         return result;
@@ -249,145 +249,121 @@ public class ProjectManagerActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    //Gets the data to populate the listviews
-    public void getProjectData(int ID) {
-        //TODO Add in httpget for project peronnel and stories
-    }
+    class projectManagerAsync extends AsyncTask<Project, Object, Void> {
 
-    class getProjectData extends AsyncTask<Integer, Void, JSONArray> {
+        String data;
 
-
-        private Exception exception;
-
+        @Override
         protected void onPreExecute() {
-            mProgressBar.setVisibility(View.VISIBLE);
+
+            mProgressBar.setVisibility(VISIBLE);
+
         }
 
-        protected JSONArray doInBackground(Integer... initials) {
-            JSONArray response = null;
-//            try {
-//                URL url = new URL(PROJECTS_API_GETALL + initials);
-//                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//                conn.setRequestMethod("GET");
-//                // read the response
-//                InputStream in = new BufferedInputStream(conn.getInputStream());
-//                response = new JSONArray(convertStreamToString(in));
-//            } catch (MalformedURLException e) {
-//                Log.e(TAG, "MalformedURLException: " + e.getMessage());
-//            } catch (ProtocolException e) {
-//                Log.e(TAG, "ProtocolException: " + e.getMessage());
-//            } catch (IOException e) {
-//                Log.e(TAG, "IOException: " + e.getMessage());
-//            } catch (Exception e) {
-//                Log.e(TAG, "Exception: " + e.getMessage());
-//            }
+        @Override
+        protected Void doInBackground(Project... params) {
 
+            postJsonData(PROJECTS_API,token, params[0]);
+            while(!uploaded){
 
-            //TODO remove these hardcoded values, pull through getProjects()
-            // Defined Array values to show in ListView
-            JSONObject project1 = new JSONObject();
-            try {
-                project1.put("ID", 1);
-                project1.put("Name", "ANPR");
-                project1.put("DateCreated", "2016-10-31 13:28:00");
-                project1.put("Active", true);
-            } catch (JSONException e) {
-                e.printStackTrace();
+                try {
+                    sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
             }
-
-            JSONObject project2 = new JSONObject();
-            try {
-                project2.put("ID", "2");
-                project2.put("Name", "CSC");
-                project2.put("DateCreated", "2016-10-31 13:28:00");
-                project2.put("Active", false);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            stories = new JSONArray();
-            stories.put(project1);
-            stories.put(project2);
-
-            personnel = new JSONArray();
-            personnel.put(project1);
-            personnel.put(project2);
-
-            return response;
+            return null;
         }
 
-        protected void onPostExecute(JSONArray response) {
-            mProgressBar.setVisibility(View.GONE);
+        protected void onPostExecute(Void result){
 
-            ArrayList<String> valuesTable1 = new ArrayList<String>();
-            for (int i = 0; i < stories.length(); i++) {
-                JSONObject project = new JSONObject();
-                try {
-                    project = stories.getJSONObject(i);
-//                String id=project.getString("ID");
-                    String name = project.getString("Name");
-//                String dateCreated = project.getString("DateCreated");
-//                String active = project.getString("Active");
-                    valuesTable1.add(name);
-                    Log.d(name, "Output");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            ArrayList<String> valuesTable2 = new ArrayList<String>();
-            for (int i = 0; i < stories.length(); i++) {
-                JSONObject project = new JSONObject();
-                try {
-                    project = stories.getJSONObject(i);
-//                String id=project.getString("ID");
-                    String name = project.getString("Name");
-//                String dateCreated = project.getString("DateCreated");
-//                String active = project.getString("Active");
-                    valuesTable2.add(name);
-                    Log.d(name, "Output");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // Define a new Adapter
-            // First parameter - Context
-            // Second parameter - Layout for the row
-            // Third parameter - ID of the TextView to which the data is written
-            // Forth - the Array of data
-
-            ArrayAdapter<String> storiesAdapter = new ArrayAdapter<String>(ProjectManagerActivity.this,
-                    android.R.layout.simple_list_item_1, android.R.id.text1, valuesTable1);
-
-            ArrayAdapter<String> personnelAdapter = new ArrayAdapter<String>(ProjectManagerActivity.this,
-                    android.R.layout.simple_list_item_1, android.R.id.text1, valuesTable2);
-
-            // Assign adapter to ListView
-            mTable1.setAdapter(storiesAdapter);
-            mTable2.setAdapter(personnelAdapter);
-        }
-
-        private String convertStreamToString(InputStream is) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            StringBuilder sb = new StringBuilder();
-
-            String line;
-            try {
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append('\n');
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return sb.toString();
         }
     }
+
+
+    public void postJsonData(String url, final String token, Project project)
+    {
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        httpClient.addInterceptor(new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(Chain chain) throws IOException {
+                Request original = chain.request();
+
+                // Request customization: add request headers
+                Request.Builder requestBuilder = original.newBuilder()
+                        .addHeader("Authorization", token);
+
+                Request request = requestBuilder.build();
+                return chain.proceed(request);
+            }
+        });
+
+        OkHttpClient client = httpClient.build();
+
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+                .create();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(url)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(client)
+                .build();
+
+        ProjectManagerActivity.ProjectManagerAPIEndpointInterface apiService =
+                retrofit.create(ProjectManagerActivity.ProjectManagerAPIEndpointInterface.class);
+
+        Call<Message> call = apiService.updateProject(project);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, final Response<Message> response) {
+
+                if(response.body().Message != null){
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            mProgressBar.setVisibility(View.GONE);
+                            toastToUI(getApplicationContext(),response.body().Message,Toast.LENGTH_LONG);
+
+                        }
+                    });
+
+                    uploaded = true;
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
+                toastToUI(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
+
+            }
+        });
+
+    }
+
+    public interface ProjectManagerAPIEndpointInterface {
+
+        @POST("updateProject")
+        Call<Message> updateProject(@Body Project project);
+    }
+
+    public void toastToUI(final Context context, final String message, final int duration){
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                Toast.makeText(context ,message ,duration).show();
+
+            }
+        });
+    }
+
 
 }

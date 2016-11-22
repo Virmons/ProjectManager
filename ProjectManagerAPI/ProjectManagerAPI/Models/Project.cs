@@ -13,6 +13,6 @@ namespace ProjectManagerAPI.Models
         public string CreatedBy { get; set; }
         public bool Active { get; set; }
         public List<Story> Stories { get; set; }
-        public List<Person> Personell { get; set; }
+        public List<Person> Personnel { get; set; }
     }
 }

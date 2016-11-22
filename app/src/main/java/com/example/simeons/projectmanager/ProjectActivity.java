@@ -1,6 +1,7 @@
 package com.example.simeons.projectmanager;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,11 +40,11 @@ public class ProjectActivity extends Activity {
 
     ListView listView;
     ProgressBar progressBar;
-    //    ArrayList<String> projects;
     boolean downloaded = false;
-    ArrayList<Project> projects = new ArrayList<Project>();
-    String url;
-    ArrayList<String> values = new ArrayList<String>();
+    ArrayList<Project> projects = new ArrayList<>();
+    ArrayList<String> values = new ArrayList<>();
+    private String token;
+    int userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +54,8 @@ public class ProjectActivity extends Activity {
         // Get ListView object from xml
         listView = (ListView) findViewById(R.id.list);
         progressBar = (ProgressBar) findViewById(R.id.ProjectProgressBar);
-        int userID = getIntent().getIntExtra("UserID", 0);
-        String token = getIntent().getStringExtra("Token");
+        userID = getIntent().getIntExtra("UserID", 0);
+        token = getIntent().getStringExtra("Token");
 
         // ListView Item Click Listener
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -62,22 +63,18 @@ public class ProjectActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                // ListView Clicked item index
-                int itemPosition = position;
-
                 // ListView Clicked item value
                 String itemValue = (String) listView.getItemAtPosition(position);
 
                         int ID = Integer.parseInt(projects.get(position).ID) -1;
                         Boolean active = Boolean.parseBoolean(projects.get(position).Active);
-                        if (active == true) {
+                        if (active) {
                             showProjectDetails(ID);
                         }
 
                     // Show Alert
-                    Toast.makeText(getApplicationContext(),
-                            "Position :" + itemPosition + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
-                            .show();
+                toastToUI(getApplicationContext(),
+                            "Position :" + position + "  ListItem : " + itemValue, Toast.LENGTH_LONG);
 
             }
 
@@ -88,14 +85,14 @@ public class ProjectActivity extends Activity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                        int ID = Integer.parseInt(projects.get(position).ID);
+                        int ID = Integer.parseInt(projects.get(position).ID) - 1;
                         editProject(ID);
 
                 return true;
             }
         });
 
-        if(token != ""){
+        if(!(token.equals(""))){
             String[] inParams = new String[2];
             inParams[0] = token;
             inParams[1] = String.valueOf(userID);
@@ -109,6 +106,8 @@ public class ProjectActivity extends Activity {
     public void addNewProject(View view) {
 
         Intent intent = new Intent(ProjectActivity.this, ProjectManagerActivity.class);
+        intent.putExtra("UserID",userID);
+        intent.putExtra("Token", token);
         startActivityForResult(intent, ADD_PROJECT_REQUEST);
 
     }
@@ -118,6 +117,8 @@ public class ProjectActivity extends Activity {
         Intent intent = new Intent(ProjectActivity.this, ProjectInProgressActivity.class);
         intent.putExtra("ID", ID);
         intent.putExtra("Project",(new Gson()).toJson(projects.get(ID)));
+        intent.putExtra("Token", token);
+        intent.putExtra("UserID",userID);
         startActivity(intent);
 
     }
@@ -125,13 +126,13 @@ public class ProjectActivity extends Activity {
     public void editProject(int ID) {
         Intent intent = new Intent(ProjectActivity.this, ProjectManagerActivity.class);
         intent.putExtra("ID", ID);
-        String project = (new Gson()).toJson(projects.get(ID));
+        intent.putExtra("Project",(new Gson()).toJson(projects.get(ID)));
+        intent.putExtra("Token", token);
+        intent.putExtra("UserID",userID);
         startActivityForResult(intent, EDIT_PROJECT_REQUEST);
     }
 
     class getProjectData extends AsyncTask<Object, Object, Void> {
-
-        String data;
 
         @Override
         protected void onPreExecute() {
@@ -144,7 +145,7 @@ public class ProjectActivity extends Activity {
         protected Void doInBackground(Object... params) {
 
             getJSONData(PROJECTS_API,params[0].toString(),params[1].toString());
-            while(downloaded = false){
+            while(!downloaded){
 
                 try {
                     sleep(1);
@@ -209,7 +210,7 @@ public class ProjectActivity extends Activity {
 
                             progressBar.setVisibility(View.GONE);
 
-                            ArrayAdapter<String> adapter = new ArrayAdapter<String>(ProjectActivity.this,
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(ProjectActivity.this,
                                     android.R.layout.simple_list_item_1, android.R.id.text1,values);
 
 
@@ -218,12 +219,14 @@ public class ProjectActivity extends Activity {
                         }
                     });
 
+                downloaded = true;
+
             }
 
             @Override
             public void onFailure(Call<Project[]> call, Throwable t) {
 
-                Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
+                toastToUI(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
 
             }
         });
@@ -247,7 +250,17 @@ public class ProjectActivity extends Activity {
 //        Call<Object> authoriseToken(@Body String token);
     }
 
+    public void toastToUI(final Context context, final String message, final int duration){
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                Toast.makeText(context ,message ,duration).show();
+
+            }
+        });
+    }
     //      //Old getJSON
 //    public String getJSON(String url, int timeout) {
 //        HttpURLConnection c = null;
