@@ -31,7 +31,11 @@ namespace ProjectManagerAPI.APIControllers
                 {
                     try
                     {
+                        List<Person> projectPersonnel = new List<Person>();
                         List<Project> projectList = new List<Project>();
+                        List<Story> projectStories = new List<Story>();
+                        List<Task> storyTasks = new List<Task>();
+                        List<WorkLog> taskWorkLogs = new List<WorkLog>();
 
                         ProjectDataAccess projectDataAccess = new ProjectDataAccess();
                         StoryDataAccess storyDataAccess = new StoryDataAccess();
@@ -44,27 +48,24 @@ namespace ProjectManagerAPI.APIControllers
 
                         foreach (Project project in projectList)
                         {
-                            List<Story> projectStories = storyDataAccess.getStoriesByProjectID(project.ID);
-                            List<Person> projectPersonnel = personDataAccess.getPersonnelByProjectID(project.ID);
+                            projectStories.AddRange(storyDataAccess.getStoriesByProjectID(project.ID));
+                            projectPersonnel.AddRange(personDataAccess.getPersonnelByProjectID(project.ID));
 
-                            foreach (Story story in projectStories)
-                            {
-                                List<Task> storyTasks = taskDataAccess.getTasksByStoryID(story.ID);
-
-                                foreach (Task task in storyTasks)
-                                {
-                                    task.WorkLogs = workLogDataAccess.getWorkLogByTaskID(task.ID);
-                                }
-
-                                story.Tasks = storyTasks;
-                            }
-
-                            project.Personnel = projectPersonnel;
-
-                            project.Stories = projectStories;
+                            
                         }
 
-                        returnProjectList = JArray.FromObject(projectList);
+                        foreach (Story story in projectStories)
+                        {
+                            storyTasks.AddRange(taskDataAccess.getTasksByStoryID(story.ID));
+
+                        }
+
+                        foreach (Task task in storyTasks)
+                        {
+                            taskWorkLogs.AddRange(workLogDataAccess.getWorkLogByTaskID(task.ID));
+                        }
+
+
 
                     }
                     catch (Exception e)
