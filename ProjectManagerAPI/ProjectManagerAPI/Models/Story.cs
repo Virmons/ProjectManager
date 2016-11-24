@@ -9,8 +9,8 @@ namespace ProjectManagerAPI.Models
     {
         public int? ID { get; set; }
         public string StoryName { get; set; }
-        public string Theme { get; set; }
-        public string Actor { get; set; }
+        public int? Theme { get; set; }
+        public int? Actor { get; set; }
         public string IWantTo { get; set; }
         public string SoThat { get; set; }
         public string Notes { get; set; }

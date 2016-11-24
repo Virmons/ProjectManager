@@ -41,3 +41,11 @@ C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManag
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\BCrypt.Net.pdb
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\BCrypt.Net.xml
 C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\obj\Debug\ProjectManagerAPI.csprojResolveAssemblyReference.cache
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\EntityFramework.dll
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\EntityFramework.SqlServer.dll
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Data.SQLite.dll
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Data.SQLite.EF6.dll
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Data.SQLite.Linq.dll
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\EntityFramework.xml
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\EntityFramework.SqlServer.xml
+C:\Users\Simeons\Documents\Android\ProjectManager\ProjectManagerAPI\ProjectManagerAPI\bin\System.Data.SQLite.xml

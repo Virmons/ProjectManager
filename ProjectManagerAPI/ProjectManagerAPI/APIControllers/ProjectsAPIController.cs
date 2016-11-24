@@ -24,34 +24,48 @@ namespace ProjectManagerAPI.APIControllers
             {
                 JArray returnProjectList = new JArray();
                 TokenAuthenticator tokenAuthenticator = new TokenAuthenticator();
-                UserRolePair userRole = tokenAuthenticator.authoriseToken(this.Request.Headers.Authorization.ToString());
-                int authorised = userRole.Role;
-                //int authorised = 2;
+                //UserRolePair userRole = tokenAuthenticator.authoriseToken(this.Request.Headers.Authorization.ToString());
+                //int authorised = userRole.Role;
+
+                ProjectDataAccess projectDataAccess = new ProjectDataAccess();
+                StoryDataAccess storyDataAccess = new StoryDataAccess();
+                TaskDataAccess taskDataAccess = new TaskDataAccess();
+                WorkLogDataAccess workLogDataAccess = new WorkLogDataAccess();
+                PersonDataAccess personDataAccess = new PersonDataAccess();
+                ProjectPersonDataAccess projectPersonDataAccess = new ProjectPersonDataAccess();
+                SprintTaskDataAccess sprintTaskDataAccess = new SprintTaskDataAccess();
+                SprintDataAccess sprintDataAccess = new SprintDataAccess();
+                ActorDataAccess actorDataAccess = new ActorDataAccess();
+                ThemeDataAccess themeDataAccess = new ThemeDataAccess();
+
+                List<Person> personnel = new List<Person>();
+                List<Project> projectList = new List<Project>();
+                List<Story> projectStories = new List<Story>();
+                List<Task> storyTasks = new List<Task>();
+                List<WorkLog> taskWorkLogs = new List<WorkLog>();
+                List<IDValuePair> themes = new List<IDValuePair>();
+                List<IDValuePair> actors = new List<IDValuePair>();
+                List<IntermediateTable> sprintTasks = new List<IntermediateTable>();
+                List<IDValuePair> sprints = new List<IDValuePair>();
+                List<IntermediateTable> projectPerson = new List<IntermediateTable>();
+                string taskIDList = "";
+                string fullTaskIDList = "";
+
+                int authorised = 2;
                 if (authorised == 2 || authorised == 1)
                 {
                     try
                     {
-                        List<Person> projectPersonnel = new List<Person>();
-                        List<Project> projectList = new List<Project>();
-                        List<Story> projectStories = new List<Story>();
-                        List<Task> storyTasks = new List<Task>();
-                        List<WorkLog> taskWorkLogs = new List<WorkLog>();
-
-                        ProjectDataAccess projectDataAccess = new ProjectDataAccess();
-                        StoryDataAccess storyDataAccess = new StoryDataAccess();
-                        TaskDataAccess taskDataAccess = new TaskDataAccess();
-                        WorkLogDataAccess workLogDataAccess = new WorkLogDataAccess();
-                        PersonDataAccess personDataAccess = new PersonDataAccess();
-
-                        //Get a list of projects the user is a personnel of
                         projectList = projectDataAccess.getAllProjects(userID);
+                        projectPerson = projectPersonDataAccess.getPersonnelOnProjectsByPersonID(userID);
+                        personnel = personDataAccess.getPersonnelByUserID(userID);
+                        actors = actorDataAccess.getAllActors();
+                        themes = themeDataAccess.getAllThemes();
 
                         foreach (Project project in projectList)
                         {
                             projectStories.AddRange(storyDataAccess.getStoriesByProjectID(project.ID));
-                            projectPersonnel.AddRange(personDataAccess.getPersonnelByProjectID(project.ID));
-
-                            
+                           
                         }
 
                         foreach (Story story in projectStories)
@@ -63,10 +77,16 @@ namespace ProjectManagerAPI.APIControllers
                         foreach (Task task in storyTasks)
                         {
                             taskWorkLogs.AddRange(workLogDataAccess.getWorkLogByTaskID(task.ID));
+                            sprintTasks = sprintTaskDataAccess.getSprintTasksByTaskID(task.ID, out taskIDList);
+                            fullTaskIDList += taskIDList;
                         }
+                        fullTaskIDList = fullTaskIDList.Substring(0, fullTaskIDList.Length - 1);
+                        sprints = sprintDataAccess.getSprintsByTaskID(fullTaskIDList);
 
-
-
+                        SQLiteGenerator sqliteGenerator = new SQLiteGenerator();
+                        sqliteGenerator.GenerateSqlite(userID, projectList, projectPerson, personnel, projectStories, actors, themes, storyTasks, sprintTasks, sprints, taskWorkLogs);
+                        
+                        
                     }
                     catch (Exception e)
                     {

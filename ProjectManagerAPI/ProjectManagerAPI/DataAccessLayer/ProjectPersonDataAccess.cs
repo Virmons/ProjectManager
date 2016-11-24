@@ -1,4 +1,5 @@
 ﻿using ProjectManagerAPI.Models;
+using ProjectManagerAPI.Utility;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -7,36 +8,37 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using Wolf.Assembly.Logging;
-using ProjectManagerAPI.Utility;
 
 namespace ProjectManagerAPI.DataAccessLayer
 {
-    public class WorkLogDataAccess
+    public class ProjectPersonDataAccess
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public List<WorkLog> getWorkLogByTaskID(int? taskID)
+        public List<IntermediateTable> getPersonnelOnProjectsByPersonID(int? personID)
         {
             using (new MethodLogging())
             {
-                List<WorkLog> taskWorkLogs = new List<WorkLog>();
+                List<IntermediateTable> projectPersonnel = new List<IntermediateTable>();
                 try
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
                     {
-                        using (SqlCommand command = new SqlCommand("usp_WorkLogGetByTaskID", connection))
+                        using (SqlCommand command = new SqlCommand("usp_ProjectPersonGetByPersonID", connection))
                         {
                             command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@TaskID", taskID).Direction = ParameterDirection.Input;
+                            command.Parameters.AddWithValue("@PersonID", personID).Direction = ParameterDirection.Input;
                             connection.Open();
                             SqlDataReader reader = command.ExecuteReader();
                             while (reader.Read())
                             {
-                                taskWorkLogs.Add(new WorkLog
+                                projectPersonnel.Add(new IntermediateTable
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
-                                    TaskID = reader.GetValueOrDefault<int>("TaskID"),
-                                    Time = reader.GetValueOrDefault<int>("TimeTaken")
+                                    FirstID = reader.GetValueOrDefault<int>("ProjectID"),
+                                    SecondID = reader.GetValueOrDefault<int>("PersonID"),
+                                    Active = reader.GetValueOrDefault<bool>("Active"),
+   
 
                                 });
                             }
@@ -48,7 +50,7 @@ namespace ProjectManagerAPI.DataAccessLayer
                 {
                     throw e;
                 }
-                return taskWorkLogs;
+                return projectPersonnel;
             }
         }
     }

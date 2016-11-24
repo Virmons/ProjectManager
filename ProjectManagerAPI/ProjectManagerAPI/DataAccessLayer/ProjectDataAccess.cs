@@ -37,9 +37,7 @@ namespace ProjectManagerAPI.DataAccessLayer
                                 {
                                     ID = int.Parse(reader["ID"].ToString()),
                                     ProjectName = reader["ProjectName"].ToString(),
-                                    DateCreated = DateTime.Parse(reader["DateCreated"].ToString()),
                                     Active = Boolean.Parse(reader["Active"].ToString()),
-                                    CreatedBy = reader["CreatedBy"].ToString()
                                 });
                             }
                             connection.Close();

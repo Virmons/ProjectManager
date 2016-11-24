@@ -35,14 +35,11 @@ namespace ProjectManagerAPI.DataAccessLayer
                                 storyTasks.Add(new Task
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
-                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
                                     Active = reader.GetValueOrDefault<bool>("Active"),
-                                    CreatedBy = reader.GetValueOrDefault<string>("CreatedBy"),
                                     Complete = reader.GetValueOrDefault<bool>("Complete"),
                                     Description = reader.GetValueOrDefault<string>("Description"),
                                     StoryID = reader.GetValueOrDefault<int>("StoryID"),
                                     TimeEstimate = reader.GetValueOrDefault<int>("TimeEstimate"),
-                                    TimeTaken = reader.GetValueOrDefault<int>("TimeTaken")
 
                                 });
                             }

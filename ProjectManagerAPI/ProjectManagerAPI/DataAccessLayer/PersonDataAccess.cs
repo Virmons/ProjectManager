@@ -15,7 +15,7 @@ namespace ProjectManagerAPI.DataAccessLayer
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public List<Person> getPersonnelByProjectID(int? projectID)
+        public List<Person> getPersonnelByUserID(int? userID)
         {
             using (new MethodLogging())
             {
@@ -24,10 +24,10 @@ namespace ProjectManagerAPI.DataAccessLayer
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
                     {
-                        using (SqlCommand command = new SqlCommand("usp_PersonGetByProjectID", connection))
+                        using (SqlCommand command = new SqlCommand("usp_PersonGetAllOnProjectsByPersonID", connection))
                         {
                             command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@ProjectID", projectID).Direction = ParameterDirection.Input;
+                            command.Parameters.AddWithValue("@PersonID", userID).Direction = ParameterDirection.Input;
                             connection.Open();
                             SqlDataReader reader = command.ExecuteReader();
                             while (reader.Read())
@@ -35,7 +35,6 @@ namespace ProjectManagerAPI.DataAccessLayer
                                 projectPersonnel.Add(new Person
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
-                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
                                     Active = reader.GetValueOrDefault<bool>("Active"),
                                     Administrator = reader.GetValueOrDefault<bool>("Administrator"),
                                     Initials = reader.GetValueOrDefault<string>("Initials"),

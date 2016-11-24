@@ -36,14 +36,10 @@ namespace ProjectManagerAPI.DataAccessLayer
                                 projectStories.Add(new Story
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
-                                    Actor = reader.GetValueOrDefault<string>("Actor"),
-                                    DateCreated = reader.GetValueOrDefault<DateTime>("DateCreated"),
+                                    Actor = reader.GetValueOrDefault<int>("Actor"),
                                     Active = reader.GetValueOrDefault<bool>("Active"),
-                                    CreatedBy = reader.GetValueOrDefault<string>("CreatedBy"),
                                     Estimate = reader.GetValueOrDefault<string>("Estimate"),
                                     IWantTo = reader.GetValueOrDefault<string>("IWantTo"),
-                                    LastEdited = reader.GetValueOrDefault<DateTime>("LastEdited"),
-                                    LastEditedBy = reader.GetValueOrDefault<string>("LastEditedBy"),
                                     Notes = reader.GetValueOrDefault<string>("Notes"),
                                     PercentageCompletion = reader.GetValueOrDefault<decimal>("PercentageCompletion"),
                                     Priority = reader.GetValueOrDefault<int>("Priority"),
@@ -51,7 +47,7 @@ namespace ProjectManagerAPI.DataAccessLayer
                                     SoThat = reader.GetValueOrDefault<string>("SoThat"),
                                     Status = reader.GetValueOrDefault<int>("Status"),
                                     StoryName = reader.GetValueOrDefault<string>("Name"),
-                                    Theme = reader.GetValueOrDefault<string>("Theme"),
+                                    Theme = reader.GetValueOrDefault<int>("Theme"),
                                     TimeEstimate = reader.GetValueOrDefault<decimal>("TimeEstimate")
                                 });
                             }
