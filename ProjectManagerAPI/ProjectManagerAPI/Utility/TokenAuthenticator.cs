@@ -113,7 +113,7 @@ namespace ProjectManagerAPI.Utility
                     }
 
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     userRole.Role = 0;
                     return userRole;

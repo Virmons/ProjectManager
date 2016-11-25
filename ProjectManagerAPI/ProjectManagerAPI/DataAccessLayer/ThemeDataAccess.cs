@@ -15,11 +15,11 @@ namespace ProjectManagerAPI.DataAccessLayer
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public List<IDValuePair> getAllThemes()
+        public List<Theme> getAllThemes()
         {
             using (new MethodLogging())
             {
-                List<IDValuePair> themes = new List<IDValuePair>();
+                List<Theme> themes = new List<Theme>();
                 try
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
@@ -31,10 +31,10 @@ namespace ProjectManagerAPI.DataAccessLayer
                             SqlDataReader reader = command.ExecuteReader();
                             while (reader.Read())
                             {
-                                themes.Add(new IDValuePair
+                                themes.Add(new Theme
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
-                                    Value = reader.GetValueOrDefault<string>("Theme"),
+                                    Name = reader.GetValueOrDefault<string>("Theme"),
                                     Active = reader.GetValueOrDefault<bool>("Active")
 
                                 });

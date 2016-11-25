@@ -15,11 +15,11 @@ namespace ProjectManagerAPI.DataAccessLayer
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public List<IntermediateTable> getSprintTasksByTaskID(int? taskID, out string taskIDList)
+        public List<SprintTask> getSprintTasksByTaskID(int? taskID, out string taskIDList)
         {
             using (new MethodLogging())
             {
-                List<IntermediateTable> sprintTasks = new List<IntermediateTable>();
+                List<SprintTask> sprintTasks = new List<SprintTask>();
                 taskIDList = "";
                 try
                 {
@@ -33,16 +33,16 @@ namespace ProjectManagerAPI.DataAccessLayer
                             SqlDataReader reader = command.ExecuteReader();
                             while (reader.Read())
                             {
-                                sprintTasks.Add(new IntermediateTable
+                                sprintTasks.Add(new SprintTask
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
                                     Active = reader.GetValueOrDefault<bool>("Active"),
-                                    FirstID = reader.GetValueOrDefault<int>("SprintID"),
-                                    SecondID = reader.GetValueOrDefault<int>("TaskID")
+                                    SprintID = reader.GetValueOrDefault<int>("SprintID"),
+                                    TaskID = reader.GetValueOrDefault<int>("TaskID")
                                                                        
                                 });
 
-                                taskIDList += (sprintTasks.Last<IntermediateTable>().ID.ToString() + ",");
+                                taskIDList += (sprintTasks.Last<SprintTask>().ID.ToString() + ",");
                             }
                             connection.Close();
                         }

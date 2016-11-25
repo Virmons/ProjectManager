@@ -15,11 +15,11 @@ namespace ProjectManagerAPI.DataAccessLayer
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public List<IDValuePair> getAllActors()
+        public List<Actor> getAllActors()
         {
             using (new MethodLogging())
             {
-                List<IDValuePair> actors = new List<IDValuePair>();
+                List<Actor> actors = new List<Actor>();
                 try
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
@@ -31,10 +31,10 @@ namespace ProjectManagerAPI.DataAccessLayer
                             SqlDataReader reader = command.ExecuteReader();
                             while (reader.Read())
                             {
-                                actors.Add(new IDValuePair
+                                actors.Add(new Actor
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
-                                    Value = reader.GetValueOrDefault<string>("Actor"),
+                                    Name = reader.GetValueOrDefault<string>("Actor"),
                                     Active = reader.GetValueOrDefault<bool>("Active")
 
 

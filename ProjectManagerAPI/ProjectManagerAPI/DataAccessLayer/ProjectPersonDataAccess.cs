@@ -15,11 +15,11 @@ namespace ProjectManagerAPI.DataAccessLayer
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public List<IntermediateTable> getPersonnelOnProjectsByPersonID(int? personID)
+        public List<ProjectPerson> getPersonnelOnProjectsByPersonID(int? personID)
         {
             using (new MethodLogging())
             {
-                List<IntermediateTable> projectPersonnel = new List<IntermediateTable>();
+                List<ProjectPerson> projectPersonnel = new List<ProjectPerson>();
                 try
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
@@ -32,11 +32,11 @@ namespace ProjectManagerAPI.DataAccessLayer
                             SqlDataReader reader = command.ExecuteReader();
                             while (reader.Read())
                             {
-                                projectPersonnel.Add(new IntermediateTable
+                                projectPersonnel.Add(new ProjectPerson
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
-                                    FirstID = reader.GetValueOrDefault<int>("ProjectID"),
-                                    SecondID = reader.GetValueOrDefault<int>("PersonID"),
+                                    ProjectID = reader.GetValueOrDefault<int>("ProjectID"),
+                                    PersonID = reader.GetValueOrDefault<int>("PersonID"),
                                     Active = reader.GetValueOrDefault<bool>("Active"),
    
 

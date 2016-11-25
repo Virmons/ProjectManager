@@ -11,6 +11,8 @@ using Wolf.Assembly.Logging;
 using ProjectManagerAPI.Utility;
 using Newtonsoft.Json;
 using System.Web.Services.Description;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace ProjectManagerAPI.APIControllers
 {
@@ -25,8 +27,9 @@ namespace ProjectManagerAPI.APIControllers
                 JArray returnProjectList = new JArray();
                 TokenAuthenticator tokenAuthenticator = new TokenAuthenticator();
                 //UserRolePair userRole = tokenAuthenticator.authoriseToken(this.Request.Headers.Authorization.ToString());
-                //int authorised = userRole.Role;
-
+                //int authorised = userRole.Role;         
+                                                
+                
                 ProjectDataAccess projectDataAccess = new ProjectDataAccess();
                 StoryDataAccess storyDataAccess = new StoryDataAccess();
                 TaskDataAccess taskDataAccess = new TaskDataAccess();
@@ -43,11 +46,11 @@ namespace ProjectManagerAPI.APIControllers
                 List<Story> projectStories = new List<Story>();
                 List<Task> storyTasks = new List<Task>();
                 List<WorkLog> taskWorkLogs = new List<WorkLog>();
-                List<IDValuePair> themes = new List<IDValuePair>();
-                List<IDValuePair> actors = new List<IDValuePair>();
-                List<IntermediateTable> sprintTasks = new List<IntermediateTable>();
-                List<IDValuePair> sprints = new List<IDValuePair>();
-                List<IntermediateTable> projectPerson = new List<IntermediateTable>();
+                List<Theme> themes = new List<Theme>();
+                List<Actor> actors = new List<Actor>();
+                List<SprintTask> sprintTasks = new List<SprintTask>();
+                List<Sprint> sprints = new List<Sprint>();
+                List<ProjectPerson> projectPerson = new List<ProjectPerson>();
                 string taskIDList = "";
                 string fullTaskIDList = "";
 
@@ -83,8 +86,18 @@ namespace ProjectManagerAPI.APIControllers
                         fullTaskIDList = fullTaskIDList.Substring(0, fullTaskIDList.Length - 1);
                         sprints = sprintDataAccess.getSprintsByTaskID(fullTaskIDList);
 
-                        SQLiteGenerator sqliteGenerator = new SQLiteGenerator();
-                        sqliteGenerator.GenerateSqlite(userID, projectList, projectPerson, personnel, projectStories, actors, themes, storyTasks, sprintTasks, sprints, taskWorkLogs);
+                        returnProjectList.Add(JArray.FromObject(personnel));
+                        returnProjectList.Add(JArray.FromObject(projectStories));
+                        returnProjectList.Add(JArray.FromObject(storyTasks));
+                        returnProjectList.Add(JArray.FromObject(taskWorkLogs));
+                        returnProjectList.Add(JArray.FromObject(themes));
+                        returnProjectList.Add(JArray.FromObject(actors));
+                        returnProjectList.Add(JArray.FromObject(sprintTasks));
+                        returnProjectList.Add(JArray.FromObject(sprints));
+                        returnProjectList.Add(JArray.FromObject(projectPerson));
+
+                        //SQLiteGenerator sqliteGenerator = new SQLiteGenerator();
+                        //sqliteGenerator.GenerateSqlite(userID, projectList, projectPerson, personnel, projectStories, actors, themes, storyTasks, sprintTasks, sprints, taskWorkLogs);
                         
                         
                     }
@@ -99,74 +112,74 @@ namespace ProjectManagerAPI.APIControllers
             }
         }
 
-        [HttpPost]
-        [Route("api/Projects/updateProject")]
-        public LoginMessage updateProject([FromBody]JObject project)
-        {
-            using (new MethodLogging())
-            {
-                bool wasAdded = false;
-                LoginMessage message = new LoginMessage();
-                try
-                {
-                    JArray returnProjectList = new JArray();
-                    TokenAuthenticator tokenAuthenticator = new TokenAuthenticator();
-                    UserRolePair userRole = tokenAuthenticator.authoriseToken(this.Request.Headers.Authorization.ToString());
-                    int authorised = userRole.Role;
-                    int userID = userRole.UserID;
-                    Project project1 = project.ToObject<Project>();
+        //[HttpPost]
+        //[Route("api/Projects/updateProject")]
+        //public LoginMessage updateProject([FromBody]JObject project)
+        //{
+        //    using (new MethodLogging())
+        //    {
+        //        bool wasAdded = false;
+        //        LoginMessage message = new LoginMessage();
+        //        try
+        //        {
+        //            JArray returnProjectList = new JArray();
+        //            TokenAuthenticator tokenAuthenticator = new TokenAuthenticator();
+        //            UserRolePair userRole = tokenAuthenticator.authoriseToken(this.Request.Headers.Authorization.ToString());
+        //            int authorised = userRole.Role;
+        //            int userID = userRole.UserID;
+        //            Project project1 = project.ToObject<Project>();
                     
-                    //LoginMessage messasge = new LoginMessage() { Message = authorised.ToString() + " " + userID.ToString() + " " + project1.ProjectName , Type = "Success", UserID = userID.ToString() };
-                    //return messasge;
-                    //int authorised = 2;
-                    if (authorised == 2)
-                    {
-                        try
-                        {
-                            ProjectDataAccess projectDataAccess = new ProjectDataAccess();
-                            StoryDataAccess storyDataAccess = new StoryDataAccess();
-                            TaskDataAccess taskDataAccess = new TaskDataAccess();
-                            PersonDataAccess personDataAccess = new PersonDataAccess();
-                            string user = User.Identity.Name;
-                            Project newProject = project.ToObject<Project>();
+        //            //LoginMessage messasge = new LoginMessage() { Message = authorised.ToString() + " " + userID.ToString() + " " + project1.ProjectName , Type = "Success", UserID = userID.ToString() };
+        //            //return messasge;
+        //            //int authorised = 2;
+        //            if (authorised == 2)
+        //            {
+        //                try
+        //                {
+        //                    ProjectDataAccess projectDataAccess = new ProjectDataAccess();
+        //                    StoryDataAccess storyDataAccess = new StoryDataAccess();
+        //                    TaskDataAccess taskDataAccess = new TaskDataAccess();
+        //                    PersonDataAccess personDataAccess = new PersonDataAccess();
+        //                    string user = User.Identity.Name;
+        //                    Project newProject = project.ToObject<Project>();
 
-                            foreach (Story story in newProject.Stories)
-                            {
-                                storyDataAccess.UpdateProjectStories(story, userID);
-                                foreach(Task task in story.Tasks)
-                                {
-                                    taskDataAccess.UpdateStoryTasks(task, userID);
-                                }
-                            }
+        //                    foreach (Story story in newProject.Stories)
+        //                    {
+        //                        storyDataAccess.UpdateProjectStories(story, userID);
+        //                        foreach(Task task in story.Tasks)
+        //                        {
+        //                            taskDataAccess.UpdateStoryTasks(task, userID);
+        //                        }
+        //                    }
 
-                            foreach (Person person in newProject.Personnel)
-                            {
-                                personDataAccess.UpdatePersonnelIntermediate(newProject, person, userID);
-                            }
+        //                    foreach (Person person in newProject.Personnel)
+        //                    {
+        //                        personDataAccess.UpdatePersonnelIntermediate(newProject, person, userID);
+        //                    }
                             
-                            wasAdded = projectDataAccess.UpdateProject(newProject, userID);
+        //                    wasAdded = projectDataAccess.UpdateProject(newProject, userID);
 
-                            message = new LoginMessage() { Message = wasAdded.ToString(), Type = "Success", UserID = userID.ToString() };
-                        }
-                        catch (WebException ex)
-                        {
-                            string a = ex.StackTrace.ToString();
-                            message = new LoginMessage() { Message = a, Type = "Fail", UserID = userID.ToString() };
-                            return message;
-                        }
-                    }
-                }
-                catch (WebException ex)
-                {
-                    string a = ex.StackTrace.ToString();
-                    message = new LoginMessage() { Message = a, Type = "Fail", UserID = "1" };
-                    return message;
-                }
+        //                    message = new LoginMessage() { Message = wasAdded.ToString(), Type = "Success", UserID = userID.ToString() };
+        //                }
+        //                catch (WebException ex)
+        //                {
+        //                    string a = ex.StackTrace.ToString();
+        //                    message = new LoginMessage() { Message = a, Type = "Fail", UserID = userID.ToString() };
+        //                    return message;
+        //                }
+        //            }
+        //        }
+        //        catch (WebException ex)
+        //        {
+        //            string a = ex.StackTrace.ToString();
+        //            message = new LoginMessage() { Message = a, Type = "Fail", UserID = "1" };
+        //            return message;
+        //        }
 
                 
-                return message;
-            }
-        }
+        //        return message;
+        //    }
+        //}
 
         //[HttpPost]
         //[Route("api/Projects/addProject")]

@@ -15,11 +15,11 @@ namespace ProjectManagerAPI.DataAccessLayer
     {
         public string connectionString = ConfigurationManager.ConnectionStrings["DBConstr"].ConnectionString;
 
-        public List<IDValuePair> getSprintsByTaskID(string taskIDList)
+        public List<Sprint> getSprintsByTaskID(string taskIDList)
         {
             using (new MethodLogging())
             {
-                List<IDValuePair> sprints = new List<IDValuePair>();
+                List<Sprint> sprints = new List<Sprint>();
                 try
                 {
                     using (SqlConnection connection = new SqlConnection(connectionString))
@@ -32,11 +32,11 @@ namespace ProjectManagerAPI.DataAccessLayer
                             SqlDataReader reader = command.ExecuteReader();
                             while (reader.Read())
                             {
-                                sprints.Add(new IDValuePair
+                                sprints.Add(new Sprint
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
                                     Active = reader.GetValueOrDefault<bool>("Active"),
-                                    Value = reader.GetValueOrDefault<string>("Description")
+                                    Description = reader.GetValueOrDefault<string>("Description")
 
                                 });
                             }

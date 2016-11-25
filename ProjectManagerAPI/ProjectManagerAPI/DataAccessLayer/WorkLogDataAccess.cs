@@ -36,7 +36,8 @@ namespace ProjectManagerAPI.DataAccessLayer
                                 {
                                     ID = reader.GetValueOrDefault<int>("ID"),
                                     TaskID = reader.GetValueOrDefault<int>("TaskID"),
-                                    Time = reader.GetValueOrDefault<int>("TimeTaken")
+                                    Time = reader.GetValueOrDefault<int>("TimeTaken"),
+                                    Person = reader.GetValueOrDefault<string>("Person")
 
                                 });
                             }

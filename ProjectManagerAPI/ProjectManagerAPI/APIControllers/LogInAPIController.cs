@@ -306,7 +306,7 @@ namespace ProjectManagerAPI.APIControllers
                 {
                     throw e;
                 }
-                return JObject.FromObject(new LoginMessage() {Message = "Hit the end", Type = notAuthenticatedString });
+
             }
         }
     }

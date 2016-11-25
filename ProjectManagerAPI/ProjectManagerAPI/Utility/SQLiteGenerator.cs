@@ -2,18 +2,27 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace ProjectManagerAPI.Utility
 {
     public class SQLiteGenerator
     {
-        public void GenerateSqlite(int userID, List<Project> projects, List<IntermediateTable> projectPeople, List<Person> people, List<Story> stories, List<IDValuePair> actors, List<IDValuePair> themes, List<Task> tasks, List<IntermediateTable> sprintTasks, List<IDValuePair> sprints, List<WorkLog> workLogs)
+        public bool GenerateSqlite(int userID, List<Project> projects, List<ProjectPerson> projectPeople, List<Person> people, List<Story> stories, List<Actor> actors, List<Theme> themes, List<Task> tasks, List<SprintTask> sprintTasks, List<Sprint> sprints, List<WorkLog> workLogs)
         {
-            
+
+
             string sqliteFile = AppDomain.CurrentDomain.BaseDirectory + "Sqlite\\" + userID.ToString() + ".sqlite";
 
+            File.Delete(sqliteFile);
+            if(File.Exists(sqliteFile))
+            {
+                return false;
+            }
             SQLiteConnection.CreateFile(sqliteFile);
 
             SQLiteConnection sqliteConnection = new SQLiteConnection("Data Source=" + sqliteFile + ";Version=3;");
@@ -21,16 +30,61 @@ namespace ProjectManagerAPI.Utility
 
             List<string> sqlList = new List<string>();
 
-            sqlList.Add("CREATE TABLE ProjectPerson(ID int IDENTITY NOT NULL, ProjectID int NOT NULL, PersonID int NOT NULL, Active bit NOT NULL, PRIMARY KEY ID)");
-            sqlList.Add("CREATE TABLE Sprint(	ID int IDENTITY(1,1) NOT NULL,	[Description] [varchar](50) NOT NULL,	[Active] [bit] NOT NULL, CONSTRAINT [PK_ProjectPerson] PRIMARY KEY CLUSTERED (	[ID] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]");
-            sqlList.Add("CREATE TABLE SprintTask(	[ID] [int] IDENTITY(1,1) NOT NULL,	[SprintID] [int] NOT NULL,	[TaskID] [int] NOT NULL,	[Active] [bit] NOT NULL, CONSTRAINT [PK_SprintTask] PRIMARY KEY CLUSTERED (	[ID] ASC )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]");
-            sqlList.Add("CREATE TABLE Story(	[ID] [int] IDENTITY(1,1) NOT NULL,	[Name] [varchar](50) NOT NULL,	[ThemeID] [int] NOT NULL,	[ActorID] [int] NOT NULL,	[IWantTo] [varchar](max) NOT NULL,	[SoThat] [varchar](max) NOT NULL,	[Notes] [varchar](max) NULL,	[Priority] [int] NOT NULL,	[Estimate] [varchar](8) NOT NULL,	[TimeEstimate] [decimal](7, 3) NOT NULL,	[Status] [int] NOT NULL,	[ProjectID] [int] NOT NULL,	[Active] [bit] NOT NULL,	[PercentageCompletion] [decimal](6, 3) NOT NULL, CONSTRAINT [PK_Story] PRIMARY KEY CLUSTERED (	[ID] ASC )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]");
-            sqlList.Add("CREATE TABLE Task(	[ID] [int] IDENTITY(1,1) NOT NULL,	[Description] [varchar](max) NOT NULL,	[TimeEstimate] [int] NOT NULL,	[StoryID] [int] NOT NULL,	[Active] [bit] NOT NULL,	[Complete] [bit] NOT NULL, CONSTRAINT [PK_Task] PRIMARY KEY CLUSTERED (	[ID] ASC )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]");
-            sqlList.Add("CREATE TABLE Theme(	[ID] [int] IDENTITY(1,1) NOT NULL,	[Name] [varchar](50) NOT NULL,	[Active] [bit] NOT NULL, CONSTRAINT [PK_Theme] PRIMARY KEY CLUSTERED (	[ID] ASC )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]");
-            sqlList.Add("CREATE TABLE WorkLog(	[ID] [int] IDENTITY(1,1) NOT NULL,	[TaskID] [int] NOT NULL,	[Time] [int] NOT NULL, CONSTRAINT [PK_WorkLog] PRIMARY KEY CLUSTERED (	[ID] ASC )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]");
-            sqlList.Add("CREATE TABLE Actor(	[ID] [int] IDENTITY(1,1) NOT NULL,	[Name] [varchar](50) NOT NULL,	[Active] [bit] NOT NULL, CONSTRAINT [PK_Actor] PRIMARY KEY CLUSTERED (	[ID] ASC )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]");
-            sqlList.Add("CREATE TABLE Person(	[ID] [int] IDENTITY(1,1) NOT NULL,	[Name] [varchar](50) NOT NULL,	[Initials] [varchar](5) NOT NULL,	[Administrator] [bit] NOT NULL,	[Active] [bit] NOT NULL, CONSTRAINT [PK_Person] PRIMARY KEY CLUSTERED (	[ID] ASC )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]");
-            sqlList.Add("CREATE TABLE Project(	[ID] [int] IDENTITY(1,1) NOT NULL,	[Name] [varchar](50) NOT NULL,	[Active] [bit] NOT NULL, CONSTRAINT [PK_Project] PRIMARY KEY CLUSTERED (	[ID] ASC )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]");
+            List<ParameterInfo> parameters = new List<ParameterInfo>();
+
+            foreach (ParameterInfo info in this.GetType().GetMethod("GenerateSqlite").GetParameters())
+            {
+                if (info.Name != "userID")
+                {
+                    parameters.Add(info);
+                }
+            }
+
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                 BindingFlags.Static | BindingFlags.Instance |
+                 BindingFlags.DeclaredOnly;
+
+            foreach (ParameterInfo param in parameters)
+            {
+                try
+                {
+                    Type paramType = param.ParameterType.GenericTypeArguments[0];
+                    FieldInfo[] fields = paramType.GetFields(flags);
+                    string tableName = paramType.Name.ToString();
+                    string sql = ("CREATE TABLE IF NOT EXISTS " + tableName + "(ID int UNIQUE PRIMARY KEY NOT NULL");
+                    foreach (FieldInfo field in fields)
+                    {
+                        string fieldName = Regex.Match(field.Name, @"\<([^)]*)\>").Groups[1].Value;
+                        if (fieldName != "ID")
+                        {
+                            switch (field.FieldType.Name)
+                            {
+                                case "Int32":
+                                    sql += ("," + fieldName + " INT NOT NULL");
+                                    break;
+                                case "Boolean":
+                                    sql += ("," + fieldName + " BIT NOT NULL");
+                                    break;
+                                case "String":
+                                    sql += ("," + fieldName + " VARCHAR(0) NOT NULL");
+                                    break;
+                                case "Decimal":
+                                    sql += ("," + fieldName + " NUMERIC NOT NULL");
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    sql += ")";
+
+                    sqlList.Add(sql);
+                }
+                catch(Exception e)
+                {
+                    throw e;
+                }
+            }
 
             try
             {
@@ -39,13 +93,61 @@ namespace ProjectManagerAPI.Utility
                     executeNonQuery(sql, sqliteConnection);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
 
 
-            Console.WriteLine("Aaah");
+            try
+            {
+                foreach(Project project in projects)
+                {
+                    Create(project, sqliteConnection);
+                }
+                foreach(ProjectPerson projectPerson in projectPeople)
+                {
+                    Create(projectPerson, sqliteConnection);
+                }
+                foreach (Person person in people)
+                {
+                    Create(person, sqliteConnection);
+                }
+                foreach (Story story in stories)
+                {
+                    Create(story, sqliteConnection);
+                }
+                foreach (Actor actor in actors)
+                {
+                    Create(actor, sqliteConnection);
+                }
+                foreach (Theme theme in themes)
+                {
+                    Create(theme, sqliteConnection);
+                }
+                foreach (Task task in tasks)
+                {
+                    Create(task, sqliteConnection);
+                }
+                foreach (SprintTask sprintTask in sprintTasks)
+                {
+                    Create(sprintTask, sqliteConnection);
+                }
+                foreach (Sprint sprint in sprints)
+                {
+                    Create(sprint, sqliteConnection);
+                }
+                foreach(WorkLog workLog in workLogs)
+                {
+                    Create(workLog, sqliteConnection);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return true;
 
         }
 
@@ -53,6 +155,52 @@ namespace ProjectManagerAPI.Utility
         {
             SQLiteCommand command = new SQLiteCommand(sql, sqliteConnection);
             command.ExecuteNonQuery();
+        }
+
+        public void Create(Object currentItem, SQLiteConnection sqliteConnection)
+        {
+            Type type = currentItem.GetType();
+
+            string sql = "";
+
+            SQLiteCommand insertSQL = new SQLiteCommand(sql, sqliteConnection);
+
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                 BindingFlags.Static | BindingFlags.Instance |
+                 BindingFlags.DeclaredOnly;
+
+            var fields = type.GetFields(flags);
+
+            string parameters = " (";
+            string values = parameters;
+
+
+            foreach (FieldInfo field in fields)
+            {
+                string fieldName = Regex.Match(field.Name, @"\<([^)]*)\>").Groups[1].Value;
+
+                var fieldValue = field.GetValue(currentItem);
+
+                parameters += fieldName + ",";
+
+                string valueName = "@" + fieldName + ",";
+
+                values += "?,";
+
+                insertSQL.Parameters.AddWithValue(valueName, fieldValue);
+            }
+
+            parameters = parameters.Substring(0, parameters.Length - 1);
+            parameters += ")";
+
+            values = values.Substring(0, values.Length - 1);
+            values += ")";
+
+            sql = "INSERT INTO " + type.Name + parameters + " VALUES" + values;
+
+            insertSQL.CommandText = sql;
+
+            insertSQL.ExecuteNonQuery();
         }
     }
 }
