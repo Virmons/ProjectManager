@@ -19,7 +19,7 @@ namespace ProjectManagerAPI.Utility
             string sqliteFile = AppDomain.CurrentDomain.BaseDirectory + "Sqlite\\" + userID.ToString() + ".sqlite";
 
             File.Delete(sqliteFile);
-            if(File.Exists(sqliteFile))
+            if (File.Exists(sqliteFile))
             {
                 return false;
             }
@@ -80,7 +80,7 @@ namespace ProjectManagerAPI.Utility
 
                     sqlList.Add(sql);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     throw e;
                 }
@@ -101,11 +101,11 @@ namespace ProjectManagerAPI.Utility
 
             try
             {
-                foreach(Project project in projects)
+                foreach (Project project in projects)
                 {
                     Create(project, sqliteConnection);
                 }
-                foreach(ProjectPerson projectPerson in projectPeople)
+                foreach (ProjectPerson projectPerson in projectPeople)
                 {
                     Create(projectPerson, sqliteConnection);
                 }
@@ -137,7 +137,7 @@ namespace ProjectManagerAPI.Utility
                 {
                     Create(sprint, sqliteConnection);
                 }
-                foreach(WorkLog workLog in workLogs)
+                foreach (WorkLog workLog in workLogs)
                 {
                     Create(workLog, sqliteConnection);
                 }
@@ -202,5 +202,63 @@ namespace ProjectManagerAPI.Utility
 
             insertSQL.ExecuteNonQuery();
         }
+
+        public List<string> GenerateCreateSql(string inputType)
+        {
+
+            List<string> createSql = new List<string>();
+
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                 BindingFlags.Static | BindingFlags.Instance |
+                 BindingFlags.DeclaredOnly;
+
+            try
+            {
+                Type paramType = Type.GetType(inputType);
+                FieldInfo[] fields = paramType.GetFields(flags);
+                string tableName = paramType.Name.ToString();
+                createSql.Add(tableName);
+                createSql.Add(fields.Count().ToString());
+                string sql = (" CREATE TABLE IF NOT EXISTS " + tableName + "(ID int UNIQUE PRIMARY KEY NOT NULL");
+                foreach (FieldInfo field in fields)
+                {
+                    string fieldName = Regex.Match(field.Name, @"\<([^)]*)\>").Groups[1].Value;
+
+                    createSql.Add(fieldName);
+                    if (fieldName != "ID")
+                    {
+                        switch (field.FieldType.Name)
+                        {
+                            case "Int32":
+                                sql += ("," + fieldName + " INT NOT NULL");
+                                break;
+                            case "Boolean":
+                                sql += ("," + fieldName + " BIT NOT NULL");
+                                break;
+                            case "String":
+                                sql += ("," + fieldName + " VARCHAR(0) NOT NULL");
+                                break;
+                            case "Decimal":
+                                sql += ("," + fieldName + " NUMERIC NOT NULL");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                sql += ")";
+
+
+                createSql.Add(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+
+            return createSql;
+        }
     }
+
 }

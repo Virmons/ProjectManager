@@ -39,6 +39,7 @@
         <activity android:name=".SprintInProgressTaskActivity" />
         <activity android:name=".SprintOverTaskActivity" />
         <activity android:name=".CreateUser"></activity>
+        <service android:name=".Service.GetDBData" />
     </application>
 
 </manifest>

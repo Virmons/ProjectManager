@@ -24,12 +24,11 @@ namespace ProjectManagerAPI.APIControllers
         {
             using (new MethodLogging())
             {
-                JArray returnProjectList = new JArray();
-                TokenAuthenticator tokenAuthenticator = new TokenAuthenticator();
+                List<JObject> returnProjectList = new List<JObject>();
+                //TokenAuthenticator tokenAuthenticator = new TokenAuthenticator();
                 //UserRolePair userRole = tokenAuthenticator.authoriseToken(this.Request.Headers.Authorization.ToString());
-                //int authorised = userRole.Role;         
+                //int authorised = userRole.Role;     
                                                 
-                
                 ProjectDataAccess projectDataAccess = new ProjectDataAccess();
                 StoryDataAccess storyDataAccess = new StoryDataAccess();
                 TaskDataAccess taskDataAccess = new TaskDataAccess();
@@ -54,7 +53,8 @@ namespace ProjectManagerAPI.APIControllers
                 string taskIDList = "";
                 string fullTaskIDList = "";
 
-                int authorised = 2;
+                int  authorised = 2;
+
                 if (authorised == 2 || authorised == 1)
                 {
                     try
@@ -86,15 +86,16 @@ namespace ProjectManagerAPI.APIControllers
                         fullTaskIDList = fullTaskIDList.Substring(0, fullTaskIDList.Length - 1);
                         sprints = sprintDataAccess.getSprintsByTaskID(fullTaskIDList);
 
-                        returnProjectList.Add(JArray.FromObject(personnel));
-                        returnProjectList.Add(JArray.FromObject(projectStories));
-                        returnProjectList.Add(JArray.FromObject(storyTasks));
-                        returnProjectList.Add(JArray.FromObject(taskWorkLogs));
-                        returnProjectList.Add(JArray.FromObject(themes));
-                        returnProjectList.Add(JArray.FromObject(actors));
-                        returnProjectList.Add(JArray.FromObject(sprintTasks));
-                        returnProjectList.Add(JArray.FromObject(sprints));
-                        returnProjectList.Add(JArray.FromObject(projectPerson));
+                        returnProjectList.Add(ToNamedJarray(projectList));
+                        returnProjectList.Add(ToNamedJarray(personnel));
+                        returnProjectList.Add(ToNamedJarray(projectStories));
+                        returnProjectList.Add(ToNamedJarray(storyTasks));
+                        returnProjectList.Add(ToNamedJarray(taskWorkLogs));
+                        returnProjectList.Add(ToNamedJarray(themes));
+                        returnProjectList.Add(ToNamedJarray(actors));
+                        returnProjectList.Add(ToNamedJarray(sprintTasks));
+                        returnProjectList.Add(ToNamedJarray(sprints));
+                        returnProjectList.Add(ToNamedJarray(projectPerson));
 
                         //SQLiteGenerator sqliteGenerator = new SQLiteGenerator();
                         //sqliteGenerator.GenerateSqlite(userID, projectList, projectPerson, personnel, projectStories, actors, themes, storyTasks, sprintTasks, sprints, taskWorkLogs);
@@ -108,9 +109,14 @@ namespace ProjectManagerAPI.APIControllers
 
                 }
 
-                return returnProjectList;
+                return JArray.FromObject(returnProjectList);
             }
         }
+
+    public JObject ToNamedJarray(Object inputObject)
+    {
+        return JObject.FromObject(new SqlArray { SQL = JArray.FromObject(new SQLiteGenerator().GenerateCreateSql(inputObject.GetType().GenericTypeArguments[0].FullName)), Array = JArray.FromObject(inputObject) });
+    }
 
         //[HttpPost]
         //[Route("api/Projects/updateProject")]

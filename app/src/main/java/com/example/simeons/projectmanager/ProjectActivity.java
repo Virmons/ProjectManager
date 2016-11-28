@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.simeons.projectmanager.Model.Project;
+import com.example.simeons.projectmanager.Service.GetDBData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -93,10 +94,17 @@ public class ProjectActivity extends Activity {
         });
 
         if(!(token.equals(""))){
-            String[] inParams = new String[2];
-            inParams[0] = token;
-            inParams[1] = String.valueOf(userID);
-            new getProjectData().execute(inParams);
+//            String[] inParams = new String[2];
+//            inParams[0] = token;
+//            inParams[1] = String.valueOf(userID);
+//            new getProjectData().execute(inParams);
+            Intent downloadIntent = new Intent(this, GetDBData.class);
+            downloadIntent.putExtra("UserID", String.valueOf(userID));
+            downloadIntent.putExtra("Token",token);
+
+            progressBar.setVisibility(VISIBLE);
+
+            startService(downloadIntent);
 
         }
 
@@ -132,123 +140,123 @@ public class ProjectActivity extends Activity {
         startActivityForResult(intent, EDIT_PROJECT_REQUEST);
     }
 
-    class getProjectData extends AsyncTask<Object, Object, Void> {
-
-        @Override
-        protected void onPreExecute() {
-
-            progressBar.setVisibility(VISIBLE);
-
-        }
-
-        @Override
-        protected Void doInBackground(Object... params) {
-
-            getJSONData(PROJECTS_API,params[0].toString(),params[1].toString());
-            while(!downloaded){
-
-                try {
-                    sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
-            return null;
-        }
-
-        protected void onPostExecute(Void result){
-
-        }
-    }
-
-    public void getJSONData(String url, final String token, String userID)
-    {
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-        httpClient.addInterceptor(new Interceptor() {
-            @Override
-            public okhttp3.Response intercept(Chain chain) throws IOException {
-                Request original = chain.request();
-
-                // Request customization: add request headers
-                Request.Builder requestBuilder = original.newBuilder()
-                        .addHeader("Authorization", token);
-
-                Request request = requestBuilder.build();
-                return chain.proceed(request);
-            }
-        });
-
-        OkHttpClient client = httpClient.build();
-
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-                .create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(url)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(client)
-                .build();
-
-        ProjectActivity.ProjectAPIEndpointInterface apiService =
-                retrofit.create(ProjectActivity.ProjectAPIEndpointInterface.class);
-
-        Call<Project[]> call = apiService.getProjects(Integer.parseInt(userID));
-        call.enqueue(new Callback<Project[]>() {
-            @Override
-            public void onResponse(Call<Project[]> call, Response<Project[]> response) {
-
-                for (Project project : response.body()) {
-                    values.add(project.ProjectName);
-                    projects.add(project);
-                }
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            progressBar.setVisibility(View.GONE);
-
-                            ArrayAdapter<String> adapter = new ArrayAdapter<>(ProjectActivity.this,
-                                    android.R.layout.simple_list_item_1, android.R.id.text1,values);
-
-
-                            // Assign adapter to ListView
-                            listView.setAdapter(adapter);
-                        }
-                    });
-
-                downloaded = true;
-
-            }
-
-            @Override
-            public void onFailure(Call<Project[]> call, Throwable t) {
-
-                toastToUI(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
-
-            }
-        });
-
-    }
-
-    public interface ProjectAPIEndpointInterface {
-        // Request method and URL specified in the annotation
-        // Callback for the parsed response is the last parameter
-
-//        @GET("users/{username}")
-//        Call<User> getUser(@Path("username") String username);
+//    class getProjectData extends AsyncTask<Object, Object, Void> {
 //
-//        @GET("group/{id}/users")
-//        Call<List<User>> groupList(@Path("id") int groupId, @Query("sort") String sort);
-
-        @GET("getAllProjects/{userID}")
-        Call<Project[]> getProjects(@Path ("userID") int userID);
-
-//        @POST("authoriseToken")
-//        Call<Object> authoriseToken(@Body String token);
-    }
+//        @Override
+//        protected void onPreExecute() {
+//
+//            progressBar.setVisibility(VISIBLE);
+//
+//        }
+//
+//        @Override
+//        protected Void doInBackground(Object... params) {
+//
+//            getJSONData(PROJECTS_API,params[0].toString(),params[1].toString());
+//            while(!downloaded){
+//
+//                try {
+//                    sleep(1);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//            return null;
+//        }
+//
+//        protected void onPostExecute(Void result){
+//
+//        }
+//    }
+//
+//    public void getJSONData(String url, final String token, String userID)
+//    {
+//        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+//        httpClient.addInterceptor(new Interceptor() {
+//            @Override
+//            public okhttp3.Response intercept(Chain chain) throws IOException {
+//                Request original = chain.request();
+//
+//                // Request customization: add request headers
+//                Request.Builder requestBuilder = original.newBuilder()
+//                        .addHeader("Authorization", token);
+//
+//                Request request = requestBuilder.build();
+//                return chain.proceed(request);
+//            }
+//        });
+//
+//        OkHttpClient client = httpClient.build();
+//
+//        Gson gson = new GsonBuilder()
+//                .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+//                .create();
+//
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(url)
+//                .addConverterFactory(GsonConverterFactory.create(gson))
+//                .client(client)
+//                .build();
+//
+//        ProjectActivity.ProjectAPIEndpointInterface apiService =
+//                retrofit.create(ProjectActivity.ProjectAPIEndpointInterface.class);
+//
+//        Call<Project[]> call = apiService.getProjects(Integer.parseInt(userID));
+//        call.enqueue(new Callback<Project[]>() {
+//            @Override
+//            public void onResponse(Call<Project[]> call, Response<Project[]> response) {
+//
+//                for (Project project : response.body()) {
+//                    values.add(project.ProjectName);
+//                    projects.add(project);
+//                }
+//
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                            progressBar.setVisibility(View.GONE);
+//
+//                            ArrayAdapter<String> adapter = new ArrayAdapter<>(ProjectActivity.this,
+//                                    android.R.layout.simple_list_item_1, android.R.id.text1,values);
+//
+//
+//                            // Assign adapter to ListView
+//                            listView.setAdapter(adapter);
+//                        }
+//                    });
+//
+//                downloaded = true;
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Project[]> call, Throwable t) {
+//
+//                toastToUI(getApplicationContext(), "Failed", Toast.LENGTH_LONG);
+//
+//            }
+//        });
+//
+//    }
+//
+//    public interface ProjectAPIEndpointInterface {
+//        // Request method and URL specified in the annotation
+//        // Callback for the parsed response is the last parameter
+//
+////        @GET("users/{username}")
+////        Call<User> getUser(@Path("username") String username);
+////
+////        @GET("group/{id}/users")
+////        Call<List<User>> groupList(@Path("id") int groupId, @Query("sort") String sort);
+//
+//        @GET("getAllProjects/{userID}")
+//        Call<Project[]> getProjects(@Path ("userID") int userID);
+//
+////        @POST("authoriseToken")
+////        Call<Object> authoriseToken(@Body String token);
+//    }
 
     public void toastToUI(final Context context, final String message, final int duration){
 
